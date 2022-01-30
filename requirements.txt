@@ -1,0 +1,14 @@
+wheel
+aiohttp
+
+hikari
+python-decouple
+hikari-tanjun
+hikari-tanchi
+uvloop>= 0.16; sys_platform != "win32"
+
+scalpl
+html2text
+bs4
+requests
+pixivpy-async
