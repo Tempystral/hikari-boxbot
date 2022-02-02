@@ -1,11 +1,12 @@
 import hikari
-import tanjun
+import lightbulb as lb
 
-component = tanjun.Component(name="whoami")
+whoami_plugin = lb.Plugin(name="whoami")
 
-@component.with_slash_command
-@tanjun.as_slash_command("whoami", "Get information about your account.")
-async def whoami(ctx: tanjun.abc.SlashContext):
+@whoami_plugin.command()
+@lb.command(name="whoami", description="Get information about your account.")
+@lb.implements(lb.PrefixCommand, lb.SlashCommand)
+async def whoami(ctx: lb.Context):
     """Replies with information about the user."""
     date_format = "%a, %d %b %Y %I:%M %p"
     member = ctx.member
@@ -27,8 +28,7 @@ async def whoami(ctx: tanjun.abc.SlashContext):
     #embed.add_field(name="Guild permissions", value=perm_string)
 
     embed.set_footer(text='ID: ' + str(member.id))
-    return await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed)
 
-@tanjun.as_loader
-def load_component(client: tanjun.abc.Client) -> None:
-    client.add_component(component.copy())
+def load(bot: lb.BotApp) -> None:
+    bot.add_plugin(whoami_plugin)

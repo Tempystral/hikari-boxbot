@@ -1,18 +1,20 @@
 from pathlib import Path
 import hikari
-import tanjun
-from logging import Logger
+import lightbulb
+import logging
 #from utils import boxconfig, logger
 
-logger = Logger("logger")
+logger = logging.getLogger("BoxBot")
 
-# BoxBot extends commands.Bot, which extends discord.Client
-class BoxBot(hikari.GatewayBot):
-    def __init__(self, token:str):
-        #self.config = boxconfig.config
+class BoxBot(lightbulb.BotApp):
+    def __init__(self, token:str, guilds:str):
         self.token = token
+        self.guilds = guilds
         super().__init__(token=self.token,
+                         prefix="!",
                          intents=hikari.Intents.ALL_GUILDS,
+                         default_enabled_guilds=guilds,
+                         
                          banner="bot")
 
     def on_starting(self) -> None:
@@ -26,7 +28,6 @@ class BoxBot(hikari.GatewayBot):
         logger.info("Shutting down...")
 
 def create(token:str, guild_id:str) -> BoxBot:
-    bot = BoxBot(token)
-    client = tanjun.Client.from_gateway_bot(bot, set_global_commands=guild_id)
-    client.load_modules(*Path("./modules").glob("*.py"))
+    bot = BoxBot(token, guild_id)
+    bot.load_extensions_from("./extensions/", must_exist=False)
     return bot
