@@ -1,7 +1,7 @@
 import hikari
 import lightbulb as lb
 
-whoami_plugin = lb.Plugin(name="whoami")
+whoami_plugin = lb.Plugin(name="Whoami")
 
 @whoami_plugin.command()
 @lb.command(name="whoami", description="Get information about your account.")
@@ -32,3 +32,6 @@ async def whoami(ctx: lb.Context):
 
 def load(bot: lb.BotApp) -> None:
     bot.add_plugin(whoami_plugin)
+
+def unload(bot: lb.BotApp) -> None:
+    bot.remove_plugin(whoami_plugin)

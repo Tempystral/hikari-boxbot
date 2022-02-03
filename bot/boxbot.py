@@ -29,5 +29,5 @@ class BoxBot(lightbulb.BotApp):
 
 def create(token:str, guild_id:str) -> BoxBot:
     bot = BoxBot(token, guild_id)
-    bot.load_extensions_from("./extensions/", must_exist=False)
+    bot.load_extensions_from("./modules/", must_exist=False)
     return bot
