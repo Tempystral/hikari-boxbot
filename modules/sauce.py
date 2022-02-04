@@ -1,17 +1,19 @@
 from re import Match
 from typing import Tuple
+from decouple import config
 
 import hikari
 import lightbulb as lb
 
 from sauce import SauceResponse, util
-from sauce.checks import user_replied_to
+from sauce.checks import reply_only, user_replied_to
 from sauce.ladles.abc import Ladle
 
 import logging
 logger = logging.getLogger("Sauce")
 
 l_extractors = ["Furaffinity"]
+l_roles = config("ELEVATED_ROLES", cast=str)
 
 sauce_plugin = lb.Plugin("Sauce")
 
@@ -43,7 +45,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
       #await event.message.respond(reply.id)
 
 @sauce_plugin.command
-@lb.add_checks(user_replied_to)
+@lb.add_checks(reply_only, user_replied_to | lb.has_roles(role1=l_roles))
 @lb.command("oops", "Purge the last message BoxBot sauced for you.")
 @lb.implements(lb.MessageCommand)
 async def oops(ctx: lb.MessageContext) -> None:
@@ -52,9 +54,10 @@ async def oops(ctx: lb.MessageContext) -> None:
   await ctx.respond(f"Message you selected: {msg.id}, typecode: {msg.type}, reference: {msg.referenced_message}")
 
 @sauce_plugin.set_error_handler
-async def on_error(event: lb.events.CommandErrorEvent):
+async def on_error(event: lb.events.CommandErrorEvent) -> None:
   logger.warning(f"Exception triggered: {event.exception}")
-  await event.context.respond(event.exception.args[0], flags=hikari.MessageFlag.EPHEMERAL)
+  await event.context.respond("\n".join(event.exception.args[0].split(", ")), flags=hikari.MessageFlag.EPHEMERAL)
+  return True # To tell the bot not to propogate this error event up the chain
 
 def find_links(message:str) -> list[Tuple[Ladle, Match]]:
   links = []
