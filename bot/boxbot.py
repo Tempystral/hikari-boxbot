@@ -6,14 +6,14 @@ import logging
 logger = logging.getLogger("BoxBot")
 
 class BoxBot(lightbulb.BotApp):
-    def __init__(self, token:str, guilds:str):
+    def __init__(self, token:str, guilds:str, log_level:str = "DEBUG"):
         self.token = token
         self.guilds = guilds
         super().__init__(token=self.token,
                          prefix="!",
                          intents=hikari.Intents.ALL_GUILDS,
                          default_enabled_guilds=guilds,
-                         logs="DEBUG",
+                         logs=log_level,
                          banner="bot")
 
     async def on_starting(self, event:hikari.Event) -> None:
@@ -28,8 +28,8 @@ class BoxBot(lightbulb.BotApp):
         logger.info("Shutting down...")
         await self.d.aio_session.close()
 
-def create(token:str, guild_id:str) -> BoxBot:
-    bot = BoxBot(token, guild_id) # init
+def create(token:str, guild_id:str, log_level:str) -> BoxBot:
+    bot = BoxBot(token, guild_id, log_level) # init
     # Listen for system events
     bot.subscribe(hikari.StartingEvent, bot.on_starting)
     bot.subscribe(hikari.StoppingEvent, bot.on_stopping)

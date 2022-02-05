@@ -42,7 +42,10 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 @lb.command("Un-Sauce", "Purge the last message BoxBot sauced for you.")
 @lb.implements(lb.MessageCommand)
 async def oops(ctx: lb.MessageContext) -> None:
-  msg = ctx.bot.d.pop(ctx.interaction.target_id)
+  msg:hikari.Message = ctx.bot.d.pop(ctx.interaction.target_id)
+
+  logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" by {msg.embeds[0].author.name} - {msg.embeds[0].url}")
+  
   await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}\n")
 
 @sauce_plugin.set_error_handler
