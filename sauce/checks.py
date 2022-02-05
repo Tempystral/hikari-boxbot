@@ -40,40 +40,25 @@ async def _get_message(context: lightbulb.Context) -> bool:
   logger.debug("Fetching message from Discord...")
   return await context.bot.rest.fetch_message(context.interaction.channel_id,context.interaction.target_id)
 
+
 user_replied_to = lightbulb.Check(p_callback=_user_replied_to, m_callback=_user_replied_to)
-"""
-Only run command on messages which are a reply to the calling user.
-"""
-
+"""Only run command on messages which are a reply to the calling user."""
 reply_only = lightbulb.Check(p_callback=_reply_only, m_callback=_reply_only)
-"""
-Only run command on messages marked with message flag 19 [`REPLY`].
-"""
-
+"""Only run command on messages marked with message flag 19 [`REPLY`]."""
 on_bot_message = lightbulb.Check(p_callback=_on_bot_message, m_callback=_on_bot_message)
-"""
-Only run command on messages sent by a bot.
-"""
+"""Only run command on messages sent by a bot."""
 
 class CheckFailureWithData(lightbulb.errors.CheckFailure):
-  """
-  A wrapper class for errors containing cleanup data.
-  """
+  """A wrapper class for errors containing cleanup data."""
   def __init__(self, *args, **kwargs):
     super().__init__(*args)
     self.data = kwargs.get("data")
 
 class NotAReplyError(CheckFailureWithData):
-  """
-  The message selected by the calling check is not a reply.
-  """
+  """The message selected by the calling check is not a reply."""
 
 class NotCallingAuthorError(CheckFailureWithData):
-  """
-  The calling user is not the user of the original sauced message.
-  """
+  """The calling user is not the user of the original sauced message."""
 
 class BotMessageOnlyError(lightbulb.errors.CheckFailure):
-  """
-  An error raised when a command intended for bot messages was run on a non-bot message.
-  """
+  """An error raised when a command intended for bot messages was run on a non-bot message."""
