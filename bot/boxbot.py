@@ -13,7 +13,7 @@ class BoxBot(lightbulb.BotApp):
                          prefix="!",
                          intents=hikari.Intents.ALL_GUILDS,
                          default_enabled_guilds=guilds,
-                         
+                         logs="DEBUG",
                          banner="bot")
 
     async def on_starting(self, event:hikari.Event) -> None:

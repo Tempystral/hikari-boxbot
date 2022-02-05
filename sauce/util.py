@@ -13,7 +13,5 @@ def remove_spoilered_text(message:str) -> str:
 def get_ladles(l_ladles:list[str]) -> list[ladles.Ladle]:
   return [getattr(ladles, name.strip())() for name in l_ladles]
 
-def compile_patterns(l_ladles:list) -> list[Tuple[ladles.Ladle, re.Pattern]]:
+def compile_patterns(l_ladles:list[ladles.Ladle]) -> list[Tuple[ladles.Ladle, re.Pattern]]:
   return [(ladle, re.compile(ladle.pattern)) for ladle in l_ladles]
-
-#def register_message(message,)
