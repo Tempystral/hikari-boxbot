@@ -11,7 +11,7 @@ class Ladle(ABC):
   '''
   A base class for image extractors, aka "ladles"
   '''
-  pattern: Pattern
+  pattern: str
 
   @abstractmethod
   def extract(self, match:Match, session:aiohttp.ClientSession) -> SauceResponse:
