@@ -6,7 +6,7 @@ import hikari
 
 import lightbulb as lb
 from decouple import config
-from sauce import SauceResponse, util, checks
+from sauce import SauceResponse, util
 from sauce.checks import on_bot_message, reply_only, user_replied_to
 from sauce.checks import CheckFailureWithData
 from sauce.ladles.abc import Ladle
@@ -32,10 +32,13 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     logger.debug(f"Extracted Data: {response}")
     # Once metadata is retrieved, send it off to the embed generator
     embed = response.to_embed()
+    images = response.get_images()
     # Post the embed + suppress embeds on original message
     if embed:
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
       await event.message.respond(embed, reply=event.message.id, mentions_reply=False) # Reply, but don't mention. We can reference this value later.
+    if images: # I would use attachments here, but the 8MB limit applies
+      await event.message.respond("\n".join(images), reply=event.message.id, mentions_reply=False)
 
 @sauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=str)))
@@ -44,8 +47,11 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 async def oops(ctx: lb.MessageContext) -> None:
   msg:hikari.Message = ctx.bot.d.pop(ctx.interaction.target_id)
 
-  logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" by {msg.embeds[0].author.name} - {msg.embeds[0].url}")
-  
+  if msg.embeds[0].title: # msg.embeds both exists and has content in it even when there are no embeds, awesome
+    logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" by {msg.embeds[0].author.name} - {msg.embeds[0].url}")
+  else:
+    logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.content}\"")
+
   await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}\n")
 
 @sauce_plugin.set_error_handler
@@ -60,8 +66,9 @@ async def on_error(event: lb.events.CommandErrorEvent) -> None:
       logger.debug(f"Cleaned message {msg.id} from the datastore")
     except (AttributeError, KeyError) as e:
       logger.debug(f"Message {msg.id} not found in datastore.")
-  await event.context.respond("\n".join(event.exception.args[0].split(", ")), flags=hikari.MessageFlag.EPHEMERAL)
-  return True # To tell the bot not to propogate this error event up the chain
+    await event.context.respond("\n".join(event.exception.args[0].split(", ")), flags=hikari.MessageFlag.EPHEMERAL)
+    return True # To tell the bot not to propogate this error event up the chain
+  
 
 def find_links(message:str) -> list[Tuple[Ladle, Match]]:
   links = []

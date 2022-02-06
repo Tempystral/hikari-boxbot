@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 from hikari import Resourceish
 
 from hikari.embeds import Embed
@@ -47,3 +47,9 @@ class SauceResponse():
     embed.set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
     embed.set_image(self.image)
     return embed
+  
+  def get_images(self, limit:int = 3) -> list[Resourceish]:
+    if len(self.images) >= limit + 1:
+      return self.images[1:limit+1]
+    else:
+      return self.images[1:]
