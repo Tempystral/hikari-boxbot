@@ -31,3 +31,9 @@ async def get_filesize(url:str, session: aiohttp.ClientSession):
       return response.content_length
   except AttributeError as e:
     return -1
+
+async def check_file_sizes(urls:list[str], limit:int, session:aiohttp.ClientSession):
+  for url in urls:
+    if await get_filesize(url, session) < limit:
+      return False
+  return True

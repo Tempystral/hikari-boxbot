@@ -46,6 +46,7 @@ class SauceResponse():
     embed = Embed(title = self.title, description=self.description, url=self.url, colour=self.colour)
     embed.set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
     embed.set_image(self.image)
+    if self.images: embed.add_field(name="Image Count", value=len(self.images))
     return embed
   
   def get_images(self, limit:int = 3) -> list[Resourceish]:
