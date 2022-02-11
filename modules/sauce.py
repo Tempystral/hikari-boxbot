@@ -90,14 +90,7 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
 async def on_error(event: lb.events.CommandErrorEvent) -> None:
   logger.warning(f"Caught exception: {type(event.exception)}")
 
-  if isinstance(event.exception, CheckFailureWithData):
-    msg:hikari.Message = event.exception.data
-    try:
-      # Remove the stored message from the datastore so it doesn't grow
-      event.bot.d.pop(msg.id)
-      logger.debug(f"Cleaned message {msg.id} from the datastore")
-    except (AttributeError, KeyError) as e:
-      logger.debug(f"Message {msg.id} not found in datastore.")
+  if isinstance(event.exception, lb.CheckFailure):
     await event.context.respond("\n".join(event.exception.args[0].split(", ")), flags=hikari.MessageFlag.EPHEMERAL)
     return True # To tell the bot not to propogate this error event up the chain
   
