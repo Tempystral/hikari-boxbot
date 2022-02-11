@@ -23,7 +23,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   # Get a list of links from the message
   msg = util.remove_spoilered_text(event.content)
   logger.debug(f"Message: {msg}")
-  links = find_links(msg)
+  links = _find_links(msg)
   if links: logger.debug(f"Found the following links: {[m for _, m in links]}")
 
   # If the regex finds a suitable match, send the link to one of the ladles to retrieve metadata
@@ -38,7 +38,12 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
       await event.message.respond(embed, reply=event.message.id, mentions_reply=False) # Reply, but don't mention. We can reference this value later.
     if images: # I would use attachments here, but the 8MB limit applies
-      await event.message.respond("\n".join(images), reply=event.message.id, mentions_reply=False)
+      attch = []
+      for image in images:
+        if await util.get_filesize(image, sauce_plugin.bot.d.aio_session) < 8388608:
+          attch.append(image)
+          images.remove(image)
+      await event.message.respond("\n".join(images), attachments=attch, reply=event.message.id, mentions_reply=False)
 
 @sauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=str)))
@@ -47,12 +52,13 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 async def oops(ctx: lb.MessageContext) -> None:
   msg:hikari.Message = ctx.bot.d.pop(ctx.interaction.target_id)
 
-  if msg.embeds[0].title: # msg.embeds both exists and has content in it even when there are no embeds, awesome
+  if _contains_embed(msg):
     logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" by {msg.embeds[0].author.name} - {msg.embeds[0].url}")
   else:
-    logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.content}\"")
+    logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg}\"")
 
-  await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}\n")
+  prev_msg:hikari.Message = await ctx.previous_response.message()
+  await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}\nPrevious response in this context: {prev_msg.id}")
 
 @sauce_plugin.set_error_handler
 async def on_error(event: lb.events.CommandErrorEvent) -> None:
@@ -70,7 +76,7 @@ async def on_error(event: lb.events.CommandErrorEvent) -> None:
     return True # To tell the bot not to propogate this error event up the chain
   
 
-def find_links(message:str) -> list[Tuple[Ladle, Match]]:
+def _find_links(message:str) -> list[Tuple[Ladle, Match]]:
   links = []
   for ext, pattern in sauce_plugin.bot.d.extractors:
     # Find all the matches for a given extractor's pattern in the message
@@ -79,6 +85,11 @@ def find_links(message:str) -> list[Tuple[Ladle, Match]]:
     if matches:
       links.extend([(ext, match) for match in matches])
   return links
+
+def _contains_embed(msg: hikari.Message):
+  if msg.embeds[0].title: # Raw images get inserted as embeds without a title, color, or timestamp
+    return True
+  return False
 
 def load(bot: lb.BotApp) -> None:
   l_extractors = config("EXTRACTORS", cast=str).split(",")

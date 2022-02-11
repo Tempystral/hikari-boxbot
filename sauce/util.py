@@ -1,7 +1,8 @@
-import lightbulb
-import re
+import aiohttp, re, logging
 from typing import Tuple
 from . import ladles
+
+logger = logging.getLogger("Boxbot.sauce.util")
 
 def remove_spoilered_text(message:str) -> str:
   '''Quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
@@ -15,3 +16,18 @@ def get_ladles(l_ladles:list[str]) -> list[ladles.Ladle]:
 
 def compile_patterns(l_ladles:list[ladles.Ladle]) -> list[Tuple[ladles.Ladle, re.Pattern]]:
   return [(ladle, re.compile(ladle.pattern)) for ladle in l_ladles]
+
+async def get_filesize(url:str, session: aiohttp.ClientSession):
+  """
+  Retrieves the size of a file on the internet. Returns -1 if the request fails, otherwise returns size in bytes.
+
+  url (`str`): The target resource
+  
+  session (`aiohttp.Session`) A web session to make the call with
+  """
+  try:
+    async with session.head(url) as response:
+      logger.debug(f"Size of {url}: {response.content_length / 1024}KiB")
+      return response.content_length
+  except AttributeError as e:
+    return -1
