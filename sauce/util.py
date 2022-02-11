@@ -34,6 +34,6 @@ async def get_filesize(url:str, session: aiohttp.ClientSession):
 
 async def check_file_sizes(urls:list[str], limit:int, session:aiohttp.ClientSession):
   for url in urls:
-    if await get_filesize(url, session) < limit:
+    if await get_filesize(url, session) > limit:
       return False
   return True
