@@ -10,4 +10,4 @@ scalpl
 html2text
 bs4
 requests
-pixivpy-async
+pixivpy-async[socks]
