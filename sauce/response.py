@@ -18,6 +18,7 @@ class SauceResponse():
                author_icon : Optional[str] = None,
                color : Optional[str] = None,
                colour : Optional[str] = None,
+               count : Optional[int] = None
                ):
     '''
     Parameters
@@ -25,32 +26,40 @@ class SauceResponse():
     `title` : The title of the post.
     `description` : The description of the post, if it exists.
     `url` : A link to the post.
-    `image` : A Resourceish type. Can be a url to an image or a file, or any other resource accepted by Hikari. Ignored if `images` is set.
+    `image` : A Resourceish type. Can be a url to an image or a file, or any other resource accepted by Hikari. If not set, defaults to the first item in `images`
     `images` : A list of Resourceish objects. Use this for albums and collections linked together from one post.
     `author_name` : The display name of whoever posted the image(s).
     `author_url` : A link to the author's profile.
     `author_icon` : The author's profile image.
     `color`/`colour` : Optional color for the embed. British spelling is ignored if both are set.
+    `count` : Optional post count. This value will be derived from the length of `images` if it is set, overriding this value.
     '''
     self.title = title
     self.description = description
     self.url = url
     self.images = images
-    self.image = images[0] if images else image
+    self.image = (image if image else (images[0] if images else None))
     self.author_name = author_name
     self.author_url = author_url
     self.author_icon = author_icon
-    self.colour = color if not colour else color | colour # Defaults to the US spelling if both are set for some reason
+    self.colour = color if not colour else colour # Defaults to the US spelling if both are set for some reason
+    self.count = len(images) if images else count 
 
   def to_embed(self) -> Embed:
     embed = Embed(title = self.title, description=self.description, url=self.url, colour=self.colour)
     embed.set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
     embed.set_image(self.image)
-    if self.images: embed.add_field(name="Image Count", value=len(self.images))
+    if self.images or self.count:
+      embed.add_field(name="Image Count", value=self.count)
     return embed
   
   def get_images(self, limit:int = 3) -> list[Resourceish]:
+    if not self.images:
+      return []
     if len(self.images) >= limit + 1:
       return self.images[1:limit+1]
     else:
       return self.images[1:]
+  
+  def __str__(self) -> str:
+    return str(self.__dict__)
