@@ -1,5 +1,11 @@
 #!/bin/usr/env python
 
+'''
+Code sourced from https://github.com/altbdoor/py-ugoira by altbdoor
+Many thanks, and I'm so sorry to what I did to this code.
+I swear, it was pretty when I got it.
+'''
+
 import argparse
 import json
 import logging

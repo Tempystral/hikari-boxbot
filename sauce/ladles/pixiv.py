@@ -1,20 +1,18 @@
-import asyncio
-import json
 import logging
-from io import BytesIO
 import os
+from io import BytesIO
 from re import Match
 from typing import Dict, Optional
 
 import aiohttp
-from hikari import Color
-from pixivpy_async import AppPixivAPI, PixivClient
-from pixivpy_async.error import RetryExhaustedError
-from pixivpy_async.utils import JsonDict
-
 from decouple import config
-from sauce import SauceResponse, pixiv_auth
-from utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames, parse_args
+from hikari import Color
+from pixivpy_async import AppPixivAPI
+from pixivpy_async.utils import JsonDict
+from sauce import SauceResponse
+from utils import pixiv_auth
+from utils.mlstripper import strip_tags
+from utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames
 
 from . import Ladle
 
@@ -28,17 +26,6 @@ class Pixiv(Ladle):
     self.direct_pattern = r'https?://i\.pximg\.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
     self.pattern = self.direct_pattern + '|' + self.illust_pattern
     self.hotlinking_allowed = False
-
-    # self.pixivapi = AppPixivAPI(env=True)
-    # try:
-    #   asyncio.get_event_loop().run_until_complete(
-    #     self.pixivapi.login(
-    #       username=config("PIXIV_EMAIL"),
-    #       password=config("PIXIV_PASS")
-    #   ))
-    #   logger.info("Logged in to Pixiv")
-    # except RetryExhaustedError as e:
-    #   logger.critical("Could not login to Pixiv: " + str(e))
 
   async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
     api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
@@ -62,21 +49,21 @@ class Pixiv(Ladle):
     video = None
     page_count = details.illust.page_count
 
-    if self._safe_for_work(details):
-      if page_count > 1:
-        images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages[1:]]
+    if details.illust.type == "ugoira":
+      video = await self._process_ugoira_video(details.illust.id, api)
     else:
-      if page_count == 1:
-        if details.illust.type == "ugoira":
-          video = await self._process_ugoira_video(details.illust.id, api)
-        else:
-          image = await self.download(details.illust.meta_single_page.original_image_url, session)
+      if self._safe_for_work(details):
+        if page_count > 1:
+          images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages[1:]]
       else:
-        images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages]
+        if page_count == 1:
+          image = await self.download(details.illust.meta_single_page.original_image_url, session)
+        else:
+          images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages]
     
     response = SauceResponse(
       title = details.illust.title,
-      description = details.illust.caption,
+      description = strip_tags(details.illust.caption),
       url = match[0],
       images = images,
       image = image,

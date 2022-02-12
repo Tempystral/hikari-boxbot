@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+'''
+Credit to ZipFile for this valuable thread and code:
+    https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362
+I'm not great with web APIs and Pixiv's is particularly inscrutable.
+Small modifications made to suit this project's needs.
+'''
+
 from argparse import ArgumentParser
 from base64 import urlsafe_b64encode
 from hashlib import sha256

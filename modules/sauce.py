@@ -49,8 +49,6 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
       else:
         contents = "\n".join(images)
       await event.message.respond(contents, attachments=attch, reply=event.message.id, mentions_reply=False)
-    # if response.video:
-    #   await event.message.respond(response.video, reply=event.message.id, mentions_reply=False)
 
 @sauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=str)))
