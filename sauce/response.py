@@ -18,7 +18,8 @@ class SauceResponse():
                author_icon : Optional[str] = None,
                color : Optional[str] = None,
                colour : Optional[str] = None,
-               count : Optional[int] = None
+               count : Optional[int] = None,
+               video : Optional[Resourceish] = None
                ):
     '''
     Parameters
@@ -33,6 +34,7 @@ class SauceResponse():
     `author_icon` : The author's profile image.
     `color`/`colour` : Optional color for the embed. British spelling is ignored if both are set.
     `count` : Optional post count. This value will be derived from the length of `images` if it is set, overriding this value.
+    `video` : Optional Resourceish parameter for video content. Use this for webm, mp4, etc.
     '''
     self.title = title
     self.description = description
@@ -44,6 +46,7 @@ class SauceResponse():
     self.author_icon = author_icon
     self.colour = color if not colour else colour # Defaults to the US spelling if both are set for some reason
     self.count = len(images) if images else count 
+    self.video = video
 
   def to_embed(self) -> Embed:
     embed = Embed(title = self.title, description=self.description, url=self.url, colour=self.colour)

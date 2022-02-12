@@ -5,12 +5,12 @@ from typing import Tuple
 import hikari
 
 import lightbulb as lb
+from bot import constants
 from decouple import config
 from sauce import SauceResponse, util
-from sauce.checks import on_bot_message, reply_only, user_replied_to
-from sauce.checks import CheckFailureWithData
+from sauce.checks import (CheckFailureWithData, on_bot_message, reply_only,
+                          user_replied_to)
 from sauce.ladles.abc import Ladle
-from bot import constants
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 
@@ -31,14 +31,16 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   for ladle, matched_link in links:
     response:SauceResponse = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
     logger.debug(f"Extracted Data: {response}")
+    
     # Once metadata is retrieved, send it off to the embed generator
-    embed = response.to_embed()
-    images = response.get_images()
+    if response:
+      embed = response.to_embed()
+      images = response.get_images()
 
     # Post the embed + suppress embeds on original message
     if embed:
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
-      await event.message.respond(embed, reply=event.message.id, mentions_reply=False) # Reply, but don't mention. We can reference this value later.
+      await event.message.respond(attachment=response.video, embed=embed, reply=event.message.id, mentions_reply=False) # Reply, but don't mention. We can reference this value later.
     if images: # I would use attachments here, but the 8MB limit applies
       attch = []
       contents = None
@@ -47,6 +49,8 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
       else:
         contents = "\n".join(images)
       await event.message.respond(contents, attachments=attch, reply=event.message.id, mentions_reply=False)
+    # if response.video:
+    #   await event.message.respond(response.video, reply=event.message.id, mentions_reply=False)
 
 @sauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=str)))
@@ -62,7 +66,7 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
   if _contains_embed(msg):
     logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" by {msg.embeds[0].author.name} - {msg.embeds[0].url}")
     # If we're on the main embed, search the channel history for future replies from the bot, but only if there's more than one image.
-    if (msg.embeds[0].fields[0].name == "Image Count"):
+    if (msg.embeds[0].fields and msg.embeds[0].fields[0].name == "Image Count"):
       search_msgs = ctx.bot.rest.fetch_messages(channel=msg.channel_id, after=msg.id)
   else:
     logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg}\"")
@@ -84,7 +88,7 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
     logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id}")
     await message.delete()
 
-  await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}")
+  await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
 
 @sauce_plugin.set_error_handler
 async def on_error(event: lb.events.CommandErrorEvent) -> None:
@@ -106,8 +110,12 @@ def _find_links(message:str) -> list[Tuple[Ladle, Match]]:
   return links
 
 def _contains_embed(msg: hikari.Message):
-  if msg.embeds[0].title: # Raw images get inserted as embeds without a title, color, or timestamp
-    return True
+  try:
+    if msg.embeds[0].title:
+      # Raw images get inserted as embeds without a title, color, or timestamp
+      return True
+  except IndexError or ValueError or AttributeError as e:
+    return False
   return False
 
 def load(bot: lb.BotApp) -> None:
