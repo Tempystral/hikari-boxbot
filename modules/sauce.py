@@ -40,7 +40,12 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     # Post the embed + suppress embeds on original message
     if embed:
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
-      await event.message.respond(attachment=response.video, embed=embed, reply=event.message.id, mentions_reply=False) # Reply, but don't mention. We can reference this value later.
+      await event.message.respond(attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
+                                  embed=embed,
+                                  reply=event.message.id,
+                                  mentions_reply=False)
+
+    # Post a second time with images, if applicable
     if images: # I would use attachments here, but the 8MB limit applies
       attch = []
       contents = None

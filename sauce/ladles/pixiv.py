@@ -32,14 +32,14 @@ class Pixiv(Ladle):
     await api.login(refresh_token=pixiv_auth.refresh(config("PIXIV_REFRESH_TOKEN")))
 
     if match.group("id1"):
-      return await self.extract_illust(match, api, session)
+      return await self.extract_illust(match.group("id1"), api, session)
     else:
-      return await self.extract_direct(match, api, session)
+      return await self.extract_illust(match.group('id2'), api, session)
 
-  async def extract_illust(self, match:Match, api:AppPixivAPI, session: aiohttp.ClientSession) -> SauceResponse:
-    illust_id = match.group("id1")
+  async def extract_illust(self, id:int, api:AppPixivAPI, session: aiohttp.ClientSession) -> SauceResponse:
+    illust_id = id
     details:JsonDict = await api.illust_detail(illust_id)
-    #logger.debug(details)
+    logger.debug(details)
 
     if 'illust' not in details:
       return
@@ -60,35 +60,21 @@ class Pixiv(Ladle):
           image = await self.download(details.illust.meta_single_page.original_image_url, session)
         else:
           images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages]
+          logger.debug(images)
     
     response = SauceResponse(
       title = details.illust.title,
       description = strip_tags(details.illust.caption),
-      url = match[0],
+      url = 'https://www.pixiv.net/en/artworks/' + illust_id,
       images = images,
       image = image,
       video = video,
       author_name = details.illust.user.name,
       author_icon = await self.download(self._get_author_icon(details), session),
       author_url = f"https://www.pixiv.net/en/users/{details.illust.user.id}",
-      color = Color(0x0096fa),
+      color = Color(0x0096fa)
     )
     return response
-
-  async def extract_direct(self, url: str) -> Optional[Dict]:
-    groups = re.match(self.pattern, url).groupdict()
-    illust_id = groups['id2']
-    page = groups['page']
-    pixiv_url = 'https://www.pixiv.net/en/artworks/' + illust_id
-    details = await self.pixivapi.illust_detail(illust_id)
-    if details.illust.x_restrict == 0 and page == '0':
-      return {'url': pixiv_url}
-    else:
-
-      return {'url': url, 'name': details.illust.user.name, 'title': details.illust.title,
-          'description': details.illust.caption,
-          'thumbnail': 'https://s.pximg.net/www/images/pixiv_logo.gif?2', 'images': [url],
-          'count': details.illust.page_count}
 
   @staticmethod
   async def download(url: str, session: aiohttp.ClientSession) -> BytesIO:

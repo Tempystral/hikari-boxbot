@@ -1,5 +1,8 @@
+from io import BytesIO
 import aiohttp, re, logging
 from typing import Tuple
+
+from hikari import Resourceish
 from . import ladles
 
 logger = logging.getLogger("Boxbot.sauce.util")
@@ -32,8 +35,12 @@ async def get_filesize(url:str, session: aiohttp.ClientSession):
   except AttributeError as e:
     return -1
 
-async def check_file_sizes(urls:list[str], limit:int, session:aiohttp.ClientSession):
+async def check_file_sizes(urls:list[Resourceish], limit:int, session:aiohttp.ClientSession):
   for url in urls:
-    if await get_filesize(url, session) > limit:
-      return False
+    if isinstance(url, BytesIO):
+      if url.__sizeof__() > limit:
+        return False
+    if isinstance(url, str):
+      if await get_filesize(url, session) > limit:
+        return False
   return True
