@@ -46,7 +46,7 @@ class ESixPool(Ladle):
         self.pattern = r'https?://(?P<site>e621|e926)\.net/pools/(?P<id>\d+)'
         self.hotlinking_allowed = True
 
-    async def extract(self, match:Match, session: aiohttp.ClientSession) -> Optional[Dict]:
+    async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
         pool_id = match.group("id")
 
         data = await _api.get(f'/pools/{pool_id}.json', session)
@@ -64,8 +64,8 @@ class ESixPool(Ladle):
         return response
         
 
-"""
-class ESixPost(BaseInfoExtractor):
+
+"""class ESixPost(BaseInfoExtractor):
     def __init__(self):
         self.pattern = r'https?://(?P<site>e621|e926)\.net/posts/(?P<id>\d+)'
         self.hotlinking_allowed = True
@@ -93,27 +93,32 @@ class ESixPost(BaseInfoExtractor):
                 return {'url': url, 'title': title, 'description': post["description"], 'images': [post['file']['url']]}
 
 
-class ESixDirectLink(BaseInfoExtractor):
+class ESixDirectLink(Ladle):
     '''Extractor to source E621 and E926 direct image links'''
     def __init__(self):
         self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
         self.hotlinking_allowed = True
 
-    async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
-        image_md5 = re.match(self.pattern, url).groupdict()['md5']
+    async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
+        image_md5 = match.group("md5")
         data = await _api.get('/posts.json?tags=md5%3A' + image_md5, session)
         post_url = "https://e621.net/posts/" + str(data['posts'][0]['id'])
-        return {'images': [post_url]}
+        response = SauceResponse(
+            url=post_url,
+            description = data["description"],
+
+        )
+        return response"""
             
-        '''
-        artists = [data["artist"][k] for k in data["artist"].keys()]
-        return {'name': ", ".join([a.capitalize() for a in artists if a != "conditional_dnp"]),
-                'description': data.get('description'),
-                'images': urls,
-                'count': data['post_count']
-                }
-        '''
-"""
+'''
+artists = [data["artist"][k] for k in data["artist"].keys()]
+return {'name': ", ".join([a.capitalize() for a in artists if a != "conditional_dnp"]),
+        'description': data.get('description'),
+        'images': urls,
+        'count': data['post_count']
+        }
+'''
+
 
 class EsixApiException(LadleException):
     """
