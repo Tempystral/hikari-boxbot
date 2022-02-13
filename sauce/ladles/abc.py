@@ -19,6 +19,9 @@ class Ladle(ABC):
 
   def findall(self, string:str) -> Iterable[Match]:
     return list(self.pattern.finditer(string))
+  
+  def cleanup(self, match:Match) -> None:
+    pass
 
 class LadleException(Exception):
   """

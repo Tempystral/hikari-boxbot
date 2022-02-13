@@ -23,7 +23,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   
   # Get a list of links from the message
   msg = util.remove_spoilered_text(event.content)
-  logger.debug(f"Message: {msg}")
+  #logger.debug(f"Message: {msg}")
   links = _find_links(msg)
   if links: logger.debug(f"Found the following links: {[m for _, m in links]}")
 
@@ -33,9 +33,8 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     logger.debug(f"Extracted Data: {response}")
     
     # Once metadata is retrieved, send it off to the embed generator
-    if response:
-      embed = response.to_embed()
-      images = response.get_images()
+    embed  = response.to_embed()   if response else None
+    images = response.get_images() if response else None
 
     # Post the embed + suppress embeds on original message
     if embed:
@@ -54,6 +53,9 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
       else:
         contents = "\n".join(images)
       await event.message.respond(contents, attachments=attch, reply=event.message.id, mentions_reply=False)
+    
+    # Finally, if necessary...
+    await ladle.cleanup(matched_link)
 
 @sauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=str)))
@@ -107,7 +109,7 @@ def _find_links(message:str) -> list[Tuple[Ladle, Match]]:
   for ext, pattern in sauce_plugin.bot.d.extractors:
     # Find all the matches for a given extractor's pattern in the message
     matches = pattern.finditer(message)
-    logger.debug(f"Matches for pattern: {pattern}: {matches}")
+    #logger.debug(f"Matches for pattern: {pattern}: {matches}")
     if matches:
       links.extend([(ext, match) for match in matches])
   return links

@@ -1,8 +1,9 @@
 import logging
 import os
+import pathlib
+import shutil
 from io import BytesIO
 from re import Match
-from typing import Dict, Optional
 
 import aiohttp
 from decouple import config
@@ -52,15 +53,11 @@ class Pixiv(Ladle):
     if details.illust.type == "ugoira":
       video = await self._process_ugoira_video(details.illust.id, api)
     else:
-      if self._safe_for_work(details):
-        if page_count > 1:
-          images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages[1:]]
+      if page_count == 1:
+        image = await self.download(details.illust.meta_single_page.original_image_url, session)
       else:
-        if page_count == 1:
-          image = await self.download(details.illust.meta_single_page.original_image_url, session)
-        else:
-          images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages]
-          logger.debug(images)
+        images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages]
+        logger.debug(images)
     
     response = SauceResponse(
       title = details.illust.title,
@@ -84,6 +81,16 @@ class Pixiv(Ladle):
       data.name = url.rpartition('/')[2]
       return data
 
+  async def cleanup(self, match:Match):
+    id = match.group('id1') or match.group('id2')
+    cleanup_path = os.path.abspath(f"./.cache/ugoira_{id}/")
+    if pathlib.Path(cleanup_path).is_dir():
+      try:
+        shutil.rmtree(cleanup_path)
+        logger.info(f"Cleaned up after Pixiv post: {id}")
+      except OSError as e:
+        logger.warning(f"Could not cleanup after Pixiv post: {id}")
+
   def _get_author_icon(self, details:JsonDict) -> str:
     try:
       urls:dict = details.illust.user.profile_image_urls
@@ -95,14 +102,14 @@ class Pixiv(Ladle):
     return details.illust.x_restrict == 0
   
   async def _process_ugoira_video(self, id:int, api:AppPixivAPI) -> str:
-    success = await get_ugoira_frames(id, f"./cache/ugoira_{id}/", api)
+    success = await get_ugoira_frames(id, f"./.cache/ugoira_{id}/", api)
     if not success:
       logger.warning(f"Was unable to retrieve ugoira data for pixiv post {id}")
       return None
     convert_ugoira_frames(
-            f"./cache/ugoira_{id}/",
+            f"./.cache/ugoira_{id}/",
             f"output.webm",
             "ffmpeg",
             "-c:v libvpx -crf 10 -b:v 2M -an -loglevel error"
         )
-    return os.path.abspath(f"./cache/ugoira_{id}/output.webm")
+    return os.path.abspath(f"./.cache/ugoira_{id}/output.webm")
