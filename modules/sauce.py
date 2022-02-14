@@ -69,7 +69,7 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
 
   # Determine which post was clicked by reading the embed data
   if _contains_embed(msg):
-    logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" by {msg.embeds[0].author.name} - {msg.embeds[0].url}")
+    logger.info(f"User {ctx.member.username}#{ctx.member.discriminator} unsauced post {msg.id}.\n\tContent: \"{msg.embeds[0].title}\" - {msg.embeds[0].url}")
     # If we're on the main embed, search the channel history for future replies from the bot, but only if there's more than one image.
     if (msg.embeds[0].fields and msg.embeds[0].fields[0].name == "Image Count"):
       search_msgs = ctx.bot.rest.fetch_messages(channel=msg.channel_id, after=msg.id)
@@ -85,15 +85,16 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
       if (m.type == hikari.MessageType.REPLY) and (m.referenced_message.id == msg.referenced_message.id):
         del_msgs.append(m)
         break
-      logger.warning("Could not find a first message to un-sauce!")
+      logger.warning("Expected to un-sauce other posts, but found none!")
 
   # Finally, delete both messages
   del_msgs.append(msg)
   for message in del_msgs:
     logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id}")
     await message.delete()
+  await msg.referenced_message.delete()
 
-  await ctx.respond(f"Ran command {ctx.command.name} on {msg.id}\nMessage type: {msg.type}\nReferenced message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
+  await ctx.respond(f"Unsauced message: {msg.id}\nReplying to message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
 
 @sauce_plugin.set_error_handler
 async def on_error(event: lb.events.CommandErrorEvent) -> None:
