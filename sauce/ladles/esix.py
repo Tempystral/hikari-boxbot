@@ -1,9 +1,9 @@
 import asyncio
 import json
 from re import Match
-from typing import Dict, Optional
+from typing import Dict
 
-import aiohttp
+from aiohttp import ClientSession, BasicAuth
 from decouple import config
 from hikari import Color
 from sauce.ladles.abc import LadleException
@@ -16,7 +16,7 @@ logger = logging.getLogger("ladles.esix")
 
 class ESixApi:
   def __init__(self):
-    self._auth = aiohttp.BasicAuth(
+    self._auth = BasicAuth(
       config("E621_USER", cast=str),
       config("E621_KEY", cast=str)
     )
@@ -24,7 +24,7 @@ class ESixApi:
     self._request_count = 0
     self.sleep_timer = 0
 
-  async def get(self, url: str, session: aiohttp.ClientSession) -> Dict:
+  async def get(self, url: str, session: ClientSession) -> Dict:
     await asyncio.sleep(self.sleep_timer)
     req_url = self._base_url + url
     async with session.get(req_url, headers={'User-Agent': 'sauce/0.1'}, auth=self._auth) as response:
@@ -46,7 +46,7 @@ class ESixPool(Ladle):
     self.pattern = r'https?://(?P<site>e621|e926)\.net/pools/(?P<id>\d+)'
     self.hotlinking_allowed = True
 
-  async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
+  async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     pool_id = match.group("id")
 
     try:
@@ -76,7 +76,7 @@ class ESixPool(Ladle):
     self.pattern = r'https?://(?P<site>e621|e926)\.net/posts/(?P<id>\d+)'
     self.hotlinking_allowed = True
 
-  async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+  async def extract(self, url: str, session: ClientSession) -> Optional[Dict]:
     groups = re.match(self.pattern, url).groupdict()
     post_id = groups['id']
 
@@ -105,7 +105,7 @@ class ESixDirectLink(Ladle):
     self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
     self.hotlinking_allowed = True
 
-  async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
+  async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     image_md5 = match.group("md5")
     data = await _api.get('/posts.json?tags=md5%3A' + image_md5, session)
     post_url = "https://e621.net/posts/" + str(data['posts'][0]['id'])

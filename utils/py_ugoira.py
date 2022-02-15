@@ -6,17 +6,15 @@ Many thanks, and I'm so sorry to what I did to this code.
 I swear, it was pretty when I got it.
 '''
 
-import argparse
-import json
 import logging
 import os
-import re
 import shlex
 import subprocess
 import sys
-import tempfile
 import urllib.request
-import zipfile
+from argparse import ArgumentParser
+from tempfile import gettempdir
+from zipfile import ZipFile
 
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.utils import JsonDict
@@ -36,7 +34,7 @@ async def get_ugoira_frames(pixiv_id, output_path, api:AppPixivAPI, verbose=Fals
     zipdata.add_header('Referer', base_pixiv_url)
     zipdata.add_header('User-Agent', user_agent)
 
-    ugoira_zipfile = os.path.join(tempfile.gettempdir(), f'ugoira_{pixiv_id}.zip')
+    ugoira_zipfile = os.path.join(gettempdir(), f'ugoira_{pixiv_id}.zip')
     chunk_size = 4 * 1024
 
     with urllib.request.urlopen(zipdata) as res, open(ugoira_zipfile, 'wb') as out_file:
@@ -48,7 +46,7 @@ async def get_ugoira_frames(pixiv_id, output_path, api:AppPixivAPI, verbose=Fals
                 break
 
     verbose_print(verbose, 'Extracting ugoira zip file')
-    with zipfile.ZipFile(ugoira_zipfile, 'r') as zip_ref:
+    with ZipFile(ugoira_zipfile, 'r') as zip_ref:
         zip_ref.extractall(output_path)
 
     verbose_print(verbose, 'Deleting ugoira zip file')
@@ -114,7 +112,7 @@ def verbose_print(verbose, message):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         description=(
             'Python script to download and convert an ugoira animation on '
             'Pixiv, and convert it to a video via FFmpeg.'

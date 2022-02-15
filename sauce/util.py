@@ -1,8 +1,11 @@
+import logging
+import re
 from io import BytesIO
-import aiohttp, re, logging
 from typing import Tuple
 
+from aiohttp import ClientSession
 from hikari import Resourceish
+
 from . import ladles
 
 logger = logging.getLogger("Boxbot.sauce.util")
@@ -20,7 +23,7 @@ def get_ladles(l_ladles:list[str]) -> list[ladles.Ladle]:
 def compile_patterns(l_ladles:list[ladles.Ladle]) -> list[Tuple[ladles.Ladle, re.Pattern]]:
   return [(ladle, re.compile(ladle.pattern)) for ladle in l_ladles]
 
-async def get_filesize(url:str, session: aiohttp.ClientSession):
+async def get_filesize(url:str, session: ClientSession):
   """
   Retrieves the size of a file on the internet. Returns -1 if the request fails, otherwise returns size in bytes.
 
@@ -35,7 +38,7 @@ async def get_filesize(url:str, session: aiohttp.ClientSession):
   except AttributeError as e:
     return -1
 
-async def check_file_sizes(urls:list[Resourceish], limit:int, session:aiohttp.ClientSession):
+async def check_file_sizes(urls:list[Resourceish], limit:int, session:ClientSession):
   for url in urls:
     if isinstance(url, BytesIO):
       if url.__sizeof__() > limit:

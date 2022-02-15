@@ -1,4 +1,4 @@
-import hikari
+from hikari import Embed
 import lightbulb as lb
 
 whoami_plugin = lb.Plugin(name="Whoami")
@@ -11,7 +11,7 @@ async def whoami(ctx: lb.Context):
     date_format = "%a, %d %b %Y %I:%M %p"
     member = ctx.member
 
-    embed = hikari.Embed(description=member.mention)
+    embed = Embed(description=member.mention)
 
     embed.set_author(name=member.nickname, icon=member.avatar_url)
     embed.set_thumbnail(member.avatar_url)

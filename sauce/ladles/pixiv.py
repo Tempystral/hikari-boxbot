@@ -1,18 +1,18 @@
 import logging
-import os
-import pathlib
-import shutil
 from io import BytesIO
+from os.path import abspath
+from pathlib import Path
 from re import Match
+from shutil import rmtree
 
-import aiohttp
+from aiohttp import ClientSession
 from decouple import config
 from hikari import Color
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.utils import JsonDict
 from sauce import SauceResponse
-from utils import pixiv_auth
 from utils.mlstripper import strip_tags
+from utils.pixiv_auth import refresh
 from utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames
 
 from . import Ladle
@@ -28,16 +28,16 @@ class Pixiv(Ladle):
     self.pattern = self.direct_pattern + '|' + self.illust_pattern
     self.hotlinking_allowed = False
 
-  async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
+  async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
-    await api.login(refresh_token=pixiv_auth.refresh(config("PIXIV_REFRESH_TOKEN")))
+    await api.login(refresh_token=refresh(config("PIXIV_REFRESH_TOKEN")))
 
     if match.group("id1"):
       return await self.extract_illust(match.group("id1"), api, session)
     else:
       return await self.extract_illust(match.group('id2'), api, session)
 
-  async def extract_illust(self, id:int, api:AppPixivAPI, session: aiohttp.ClientSession) -> SauceResponse:
+  async def extract_illust(self, id:int, api:AppPixivAPI, session: ClientSession) -> SauceResponse:
     illust_id = id
     details:JsonDict = await api.illust_detail(illust_id)
     logger.debug(details)
@@ -74,7 +74,7 @@ class Pixiv(Ladle):
     return response
 
   @staticmethod
-  async def download(url: str, session: aiohttp.ClientSession) -> BytesIO:
+  async def download(url: str, session: ClientSession) -> BytesIO:
     async with session.get(url, headers={'Referer': 'https://app-api.pixiv.net/'}) as response:
       data = await response.read()
       data = BytesIO(data)
@@ -83,10 +83,10 @@ class Pixiv(Ladle):
 
   async def cleanup(self, match:Match):
     id = match.group('id1') or match.group('id2')
-    cleanup_path = os.path.abspath(f"./.cache/ugoira_{id}/")
-    if pathlib.Path(cleanup_path).is_dir():
+    cleanup_path = abspath(f"./.cache/ugoira_{id}/")
+    if Path(cleanup_path).is_dir():
       try:
-        shutil.rmtree(cleanup_path)
+        rmtree(cleanup_path)
         logger.info(f"Cleaned up after Pixiv post: {id}")
       except OSError as e:
         logger.warning(f"Could not cleanup after Pixiv post: {id}")
@@ -112,4 +112,4 @@ class Pixiv(Ladle):
             "ffmpeg",
             "-c:v libvpx -crf 10 -b:v 2M -an -loglevel error"
         )
-    return os.path.abspath(f"./.cache/ugoira_{id}/output.webm")
+    return abspath(f"./.cache/ugoira_{id}/output.webm")

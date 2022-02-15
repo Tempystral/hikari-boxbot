@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from re import Pattern, Match, finditer
-from typing import Dict, Iterable, Optional
+from re import Match
+from typing import Iterable, Optional
 
-import aiohttp
+from aiohttp import ClientSession
 
 from sauce import SauceResponse
 
@@ -14,12 +14,13 @@ class Ladle(ABC):
   pattern: str
 
   @abstractmethod
-  def extract(self, match:Match, session:aiohttp.ClientSession) -> SauceResponse:
+  def extract(self, match:Match, session:ClientSession) -> SauceResponse:
     pass
 
   def findall(self, string:str) -> Iterable[Match]:
     return list(self.pattern.finditer(string))
   
+  @abstractmethod
   def cleanup(self, match:Match) -> None:
     pass
 

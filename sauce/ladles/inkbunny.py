@@ -1,4 +1,6 @@
-import aiohttp, json, re, scalpl
+import re, json
+from aiohttp import ClientSession
+from scalpl import Cut
 from hikari import Color
 from decouple import config
 from re import Match
@@ -15,7 +17,7 @@ class InkBunny(Ladle):
     #self.hotlinking_allowed = True
     self.__sid = "" # Cannot start as None or else requests fail-unsafe
 
-  async def _login(self, session: aiohttp.ClientSession) -> None:
+  async def _login(self, session: ClientSession) -> None:
     user_info = {
       "username" : config("IB_USER", cast=str),
       "password" : config("IB_PASS", cast=str)
@@ -30,7 +32,7 @@ class InkBunny(Ladle):
       except KeyError as e:
         logger.critical(f'Could not login to InkBunny:\nResponse from server: {data["error_message"]}')
 
-  async def extract(self, match: re.Match, session: aiohttp.ClientSession) -> SauceResponse:
+  async def extract(self, match: re.Match, session: ClientSession) -> SauceResponse:
     if not self.__sid:
       await self._login(session)
     
@@ -49,7 +51,7 @@ class InkBunny(Ladle):
           await self._login(session) # Refresh SID
           await self.extract(match, session)
       else:
-        submission = scalpl.Cut(data["submissions"][0])
+        submission = Cut(data["submissions"][0])
 
         response = SauceResponse(
           title = submission.get("title"),

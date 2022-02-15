@@ -8,8 +8,7 @@ import lightbulb as lb
 from bot import constants
 from decouple import config
 from sauce import SauceResponse, util
-from sauce.checks import (CheckFailureWithData, on_bot_message, reply_only,
-                          user_replied_to)
+from sauce.checks import on_bot_message, reply_only, user_replied_to
 from sauce.ladles.abc import Ladle
 
 logger = logging.getLogger("BoxBot.modules.sauce")

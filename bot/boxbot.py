@@ -1,11 +1,11 @@
-import aiohttp
+from aiohttp import ClientSession
 import hikari
-import lightbulb
+from lightbulb import BotApp
 import logging
 
 logger = logging.getLogger("BoxBot")
 
-class BoxBot(lightbulb.BotApp):
+class BoxBot(BotApp):
     def __init__(self, token:str, guilds:str, log_level:str = "DEBUG"):
         self.token = token
         self.guilds = guilds
@@ -18,7 +18,7 @@ class BoxBot(lightbulb.BotApp):
 
     async def on_starting(self, event:hikari.Event) -> None:
         logger.info("Starting...")
-        self.d.aio_session = aiohttp.ClientSession()
+        self.d.aio_session = ClientSession()
     
     async def on_started(self, event:hikari.Event) -> None:
         logger.info(f"Logged in as:\n\t{self.user}\nwith ID:\n\t{self.user.id}")

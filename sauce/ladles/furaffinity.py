@@ -1,7 +1,7 @@
 from re import Match
 from decouple import config
 
-import aiohttp
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from . import Ladle
 from sauce import SauceResponse
@@ -12,7 +12,7 @@ class Furaffinity(Ladle):
     self.pattern = r'https?://www.furaffinity.net/(?:view|full)/(?P<id>\d+)'
     self._cookie = config("FA_COOKIE")
 
-  async def extract(self, match:Match, session: aiohttp.ClientSession) -> SauceResponse:
+  async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     submission_id = match.group("id")
 
     url = f'http://www.furaffinity.net/view/{submission_id}'

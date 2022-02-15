@@ -1,19 +1,20 @@
-import html
-import json
-import logging
-import re
-from re import Match
-from typing import Dict, Optional, Tuple
+from html import unescape
 
-import aiohttp
+from re import Match
+import re
+from typing import Optional, Tuple
+
+import json
+from aiohttp import ClientSession
 from hikari import Color
-import scalpl
+from scalpl import Cut
 
 from bot.constants import EHENTAI_DESC
 from sauce.response import SauceResponse
 
 from . import Ladle
 
+import logging
 logger = logging.getLogger("ladles.ehentai")
 
 class EHentai(Ladle):
@@ -25,7 +26,7 @@ class EHentai(Ladle):
       "abortion", "bestiality", "lolicon", "shotacon", "toddlercon", #"incest"
     ]
 
-  async def extract(self, match:Match, session: aiohttp.ClientSession) -> Optional[Dict]:
+  async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     gallery_id:int = None
     gallery_token:str = None
     # try:
@@ -47,14 +48,14 @@ class EHentai(Ladle):
     }
     data:dict = await self._get_gallery_metadata(params, session)
     
-    metadata = scalpl.Cut(data["gmetadata"][0]) # This will only work for single requests. This logic will need to change to accomodate multi-gallery requests
+    metadata = Cut(data["gmetadata"][0]) # This will only work for single requests. This logic will need to change to accomodate multi-gallery requests
     if "error" in metadata:
       logger.warning(f'E-Hentai API error: {metadata["error"]}')
     
     response = self._create_response(metadata, gallery_id, gallery_token)
     return response
   
-  def _create_response(self, metadata:scalpl.Cut, gallery_id:int, gallery_token:str) -> SauceResponse:
+  def _create_response(self, metadata:Cut, gallery_id:int, gallery_token:str) -> SauceResponse:
     tags = metadata.get("tags")
     prefix, description = (("ex", EHENTAI_DESC)
                            if self.__is_restricted(tags)
@@ -62,7 +63,7 @@ class EHentai(Ladle):
     description += self.__tags_to_string(tags)
     
     return SauceResponse(
-      title = html.unescape(metadata.get("title")).replace("\n", " "),
+      title = unescape(metadata.get("title")).replace("\n", " "),
       description = description,
       url = f"https://{prefix}hentai.org/g/{gallery_id}/{gallery_token}/",
       image = metadata.get("thumb"),
@@ -70,7 +71,7 @@ class EHentai(Ladle):
       count = int(metadata.get("filecount"))
     )
 
-  async def _get_gallery_metadata(self, params:dict, session:aiohttp.ClientSession) -> Optional[dict]:
+  async def _get_gallery_metadata(self, params:dict, session:ClientSession) -> Optional[dict]:
     async with session.post(self._request_url, json=params, headers={'User-Agent': 'sauce/0.1'}) as response:
       text = await response.read()
       data = json.loads(text)
@@ -78,7 +79,7 @@ class EHentai(Ladle):
         raise EHMetadataError(f'E-Hentai API error: {data["error"]}')
       return data
 
-  async def _retrieve_gallery_details(self,session:aiohttp.ClientSession,
+  async def _retrieve_gallery_details(self,session:ClientSession,
                                       gallery_type:str,
                                       group_1:str,
                                       group_2:str,
@@ -97,7 +98,7 @@ class EHentai(Ladle):
     
     return gallery_id, gallery_token
 
-  async def _retrieve_gallery_token(self, page_token: str, gallery_id: int, page_num: int, session: aiohttp.ClientSession) -> str:
+  async def _retrieve_gallery_token(self, page_token: str, gallery_id: int, page_num: int, session: ClientSession) -> str:
     if page_num == None:
       raise EHGalleryTokenError(f'Gallery token requested for page, but no page number was included.')
     # Good response: {'tokenlist': [{'gid': 1234567, 'token': 'aw3o8fja83'}]}

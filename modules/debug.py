@@ -1,5 +1,5 @@
 import lightbulb
-import hikari
+from hikari import MessageFlag
 
 debug_plugin = lightbulb.Plugin("Debug")
 
@@ -24,7 +24,7 @@ async def reload_module(ctx: lightbulb.Context):
         ctx.bot.load_extensions(module_name)
 
     #await ctx.bot.declare_global_commands()
-    await ctx.respond(f"Reloaded module {module_name}", flags=hikari.MessageFlag.EPHEMERAL)
+    await ctx.respond(f"Reloaded module {module_name}", flags=MessageFlag.EPHEMERAL)
 
 
 @module_group.child
@@ -39,7 +39,7 @@ async def unload_module(ctx: lightbulb.Context):
     try:
         ctx.bot.unload_extensions(module_name)
     except lightbulb.errors.ExtensionMissingUnload or lightbulb.errors.ExtensionNotFound:
-        await ctx.respond(f"Couldn't unload module {module_name}", flags=hikari.MessageFlag.EPHEMERAL)
+        await ctx.respond(f"Couldn't unload module {module_name}", flags=MessageFlag.EPHEMERAL)
         return
 
     # Set global commands again?
@@ -58,7 +58,7 @@ async def load_module(ctx: lightbulb.Context):
     try:
         ctx.bot.load_extensions(module_name)
     except lightbulb.errors.ExtensionAlreadyLoaded or lightbulb.errors.ExtensionMissingLoad:
-        await ctx.respond(f"Can't find module {module_name}", flags=hikari.MessageFlag.EPHEMERAL)
+        await ctx.respond(f"Can't find module {module_name}", flags=MessageFlag.EPHEMERAL)
         return
 
     #await ctx.bot.declare_global_commands()
