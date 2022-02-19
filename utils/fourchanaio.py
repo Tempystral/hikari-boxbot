@@ -61,8 +61,8 @@ class Post:
 
 
 class Chan:
-    def __init__(self, session: Optional[ClientSession] = None):
-        self._session = ClientSession() if session is None else session
+    def __init__(self, session:ClientSession):
+        self._session = session
 
     async def catalog(self, board: str) -> List[Post]:
         url = 'https://a.4cdn.org/{}/catalog.json'.format(board)
