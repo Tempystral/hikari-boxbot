@@ -116,3 +116,4 @@ dmypy.json
 # Custom ignores
 py39/
 .cache/
+test/json/*
