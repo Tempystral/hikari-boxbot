@@ -17,11 +17,15 @@ async def check_threads():
   threads = await get_new_threads()
   if threads:
     urls = [thread.url for thread in threads]
-    msg = ("Found {n} new threads{s}:\n{ts}"
-            .format(n = len(urls), s = "s"*int(bool(len(urls))), ts="\n".join(urls)))
+    msg = ("<@&{role}> Found {n} new threads{s}:\n{ts}"
+            .format(role = plugin.bot.d.notify_role,
+                    n = len(urls),
+                    s = "s"*int(bool(len(urls))),
+                    ts="\n".join(urls))
+          )
     plugin.bot.rest.create_message(content=msg,
                                   channel=plugin.bot.d.notify_channel,
-                                  role_mentions=plugin.bot.d.notify_role)
+                                  role_mentions=True)
 
 async def get_new_threads() -> list[Post]:
   threads = await watcher.update()
