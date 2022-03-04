@@ -20,6 +20,12 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   if (not event.content) or event.author.is_bot:
     return
   
+  if sauce_plugin.bot.d.testmode:
+    if event.channel_id == config("TEST_CHANNEL", cast=int):
+      pass
+    else:
+      return
+  
   # Get a list of links from the message
   msg = util.remove_spoilered_text(event.content)
   #logger.debug(f"Message: {msg}")
@@ -57,7 +63,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     await ladle.cleanup(matched_link)
 
 @sauce_plugin.command
-@lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=str)))
+@lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=int)))
 @lb.command("Un-Sauce", "Purge the last message BoxBot sauced for you.")
 @lb.implements(lb.MessageCommand)
 async def un_sauce(ctx: lb.MessageContext) -> None:
@@ -127,6 +133,8 @@ def load(bot: lb.BotApp) -> None:
   l_extractors = config("EXTRACTORS", cast=str).split(",")
   bot.d.extractors = util.compile_patterns(util.get_ladles(l_extractors))
   logger.debug(f"Loaded extractors: {[(l, e.pattern) for l, e in bot.d.extractors]}")
+  if bot.d.testmode:
+    logger.warning("Loaded in test mode!")
   bot.add_plugin(sauce_plugin)
 
 def unload(bot: lb.BotApp) -> None:
