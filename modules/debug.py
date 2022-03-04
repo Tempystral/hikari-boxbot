@@ -29,41 +29,41 @@ async def reload_module(ctx: lightbulb.Context):
   await ctx.respond(f"Reloaded module {module_name}", flags=MessageFlag.EPHEMERAL)
 
 
-@module_group.child
-@lightbulb.option("module_name", "The module to target.")
-@lightbulb.command("unload", "Removes a module.", inherit_checks=True)
-@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
-async def unload_module(ctx: lightbulb.Context):
-  """Unload a module in Tanjun"""
+# @module_group.child
+# @lightbulb.option("module_name", "The module to target.")
+# @lightbulb.command("unload", "Removes a module.", inherit_checks=True)
+# @lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+# async def unload_module(ctx: lightbulb.Context):
+#   """Unload a module in Tanjun"""
 
-  module_name = getModuleName(ctx)
+#   module_name = getModuleName(ctx)
 
-  try:
-    ctx.bot.unload_extensions(module_name)
-  except lightbulb.errors.ExtensionMissingUnload or lightbulb.errors.ExtensionNotFound:
-    await ctx.respond(f"Couldn't unload module {module_name}", flags=MessageFlag.EPHEMERAL)
-    return
+#   try:
+#     ctx.bot.unload_extensions(module_name)
+#   except lightbulb.errors.ExtensionMissingUnload or lightbulb.errors.ExtensionNotFound:
+#     await ctx.respond(f"Couldn't unload module {module_name}", flags=MessageFlag.EPHEMERAL)
+#     return
 
-  # Set global commands again?
-  await ctx.respond("Unloaded!")
+#   # Set global commands again?
+#   await ctx.respond("Unloaded!")
 
-@module_group.child
-@lightbulb.option("module_name", "The module to reload.")
-@lightbulb.command("load", "Loads a module.", inherit_checks=True)
-@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
-async def load_module(ctx: lightbulb.Context):
-  """Load a module in Tanjun"""
+# @module_group.child
+# @lightbulb.option("module_name", "The module to reload.")
+# @lightbulb.command("load", "Loads a module.", inherit_checks=True)
+# @lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+# async def load_module(ctx: lightbulb.Context):
+#   """Load a module in Tanjun"""
 
-  module_name = getModuleName(ctx)
+#   module_name = getModuleName(ctx)
 
-  try:
-    ctx.bot.load_extensions(module_name)
-  except lightbulb.errors.ExtensionAlreadyLoaded or lightbulb.errors.ExtensionMissingLoad:
-    await ctx.respond(f"Can't find module {module_name}", flags=MessageFlag.EPHEMERAL)
-    return
+#   try:
+#     ctx.bot.load_extensions(module_name)
+#   except lightbulb.errors.ExtensionAlreadyLoaded or lightbulb.errors.ExtensionMissingLoad:
+#     await ctx.respond(f"Can't find module {module_name}", flags=MessageFlag.EPHEMERAL)
+#     return
 
-  #await ctx.bot.declare_global_commands()
-  await ctx.respond("Loaded!")
+#   #await ctx.bot.declare_global_commands()
+#   await ctx.respond("Loaded!")
 
 @module_group.child
 @lightbulb.command("test", "Puts the bot in testing mode.", inherit_checks=True)
