@@ -5,7 +5,7 @@ hikari
 python-decouple
 hikari-lightbulb
 uvloop>= 0.16; sys_platform != "win32"
-
+tweepy[async]
 scalpl
 html2text
 bs4
