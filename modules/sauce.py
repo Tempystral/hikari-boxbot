@@ -116,7 +116,7 @@ def _find_links(message:str) -> list[Tuple[Ladle, Match]]:
 
 def _contains_embed(msg: hikari.Message):
   try:
-    if msg.embeds[0].title:
+    if msg.embeds[0].title or msg.embeds[0].color:
       # Raw images get inserted as embeds without a title, color, or timestamp
       return True
   except IndexError or ValueError or AttributeError as e:
