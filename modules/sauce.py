@@ -63,7 +63,8 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     await ladle.cleanup(matched_link)
 
 @sauce_plugin.command
-@lb.add_checks(on_bot_message, reply_only, user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=int)))
+@lb.add_checks(on_bot_message, reply_only)
+@lb.add_checks(user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=int)))
 @lb.command("Un-Sauce", "Purge the last message BoxBot sauced for you.")
 @lb.implements(lb.MessageCommand)
 async def un_sauce(ctx: lb.MessageContext) -> None:
@@ -99,7 +100,7 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
     await message.delete()
   await msg.referenced_message.delete()
 
-  await ctx.respond(f"Unsauced message: {msg.id}\nReplying to message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
+  await ctx.respond(f"Post {msg.id} successfully removed!", flags=hikari.MessageFlag.EPHEMERAL) #(f"Unsauced message: {msg.id}\nReplying to message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
 
 @sauce_plugin.set_error_handler
 async def on_error(event: lb.events.CommandErrorEvent) -> None:
