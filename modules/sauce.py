@@ -44,10 +44,6 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 
     # Post the embed + suppress embeds on original message
     if embed:
-      # Don't embed a twitter message with images if the native embed succeeds
-      if embed.image and len(event.message.embeds) > 0 and isinstance(ladle, Twitter):
-        return 
-
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
       await event.message.respond(attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
                                   embed=embed,
@@ -66,6 +62,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     
     # Finally, if necessary...
     await ladle.cleanup(matched_link)
+    logger.info(f"Sauced post {event.message_id} by user {event.member.username}#{event.member.discriminator}: {matched_link.string}")
 
 @sauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only)

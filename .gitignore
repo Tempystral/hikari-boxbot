@@ -117,3 +117,4 @@ dmypy.json
 py39/
 .cache/
 test/json/*
+logs/*
