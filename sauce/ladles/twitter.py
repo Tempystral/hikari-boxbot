@@ -37,10 +37,10 @@ class Twitter(Ladle):
       logger.debug("No media to sauce.")
       return
 
-    video = None
+    text = None
     images = None
-    if media[0].type == "video":
-      video = await self.retrieve_video(token, tweet_id)
+    if media[0].type == "video" or media[0].type == "animated_gif":
+      text = match.string.replace("twitter", "fxtwitter")
     elif media[0].type == "photo":
       images = [m.url for m in media]
 
@@ -52,7 +52,7 @@ class Twitter(Ladle):
       author_url = user.url,
       author_icon = user.profile_image_url,
       images = images,
-      video = video,
+      text = text,
       colour = Color(0x1d9bf0)
     )
 

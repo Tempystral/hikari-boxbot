@@ -43,10 +43,11 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     images = response.get_images() if response else None
 
     # Post the embed + suppress embeds on original message
-    if embed:
+    if embed or response.text:
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
       await event.message.respond(attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
                                   embed=embed,
+                                  content=response.text,
                                   reply=event.message.id,
                                   mentions_reply=False)
 
