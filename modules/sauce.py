@@ -10,6 +10,7 @@ from decouple import config
 from sauce import SauceResponse, util
 from sauce.checks import on_bot_message, reply_only, user_replied_to
 from sauce.ladles.abc import Ladle
+from sauce.ladles.twitter import Twitter
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 
@@ -43,6 +44,10 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 
     # Post the embed + suppress embeds on original message
     if embed:
+      # Don't embed a twitter message with images if the native embed succeeds
+      if embed.image and len(event.message.embeds) > 0 and isinstance(ladle, Twitter):
+        return 
+
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
       await event.message.respond(attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
                                   embed=embed,
