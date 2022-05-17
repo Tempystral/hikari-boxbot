@@ -40,7 +40,7 @@ class Twitter(Ladle):
     text = None
     images = None
     if media[0].type == "video" or media[0].type == "animated_gif":
-      text = match.string.replace("twitter", "fxtwitter")
+      text = match.string.replace("twitter", "vxtwitter")
     elif media[0].type == "photo":
       images = [m.url for m in media]
 

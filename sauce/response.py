@@ -51,7 +51,10 @@ class SauceResponse():
     self.video = video
     self.text = text
 
-  def to_embed(self) -> Embed:
+  def to_embed(self) -> Optional[Embed]:
+    '''
+    Creates a discord embed from the response object containing all the response details. Also contains the first image in `images`, if any.
+    '''
     if self.text:
       return None
     embed = Embed(title = self.title, description=self.description, url=self.url, colour=self.colour)
@@ -62,6 +65,9 @@ class SauceResponse():
     return embed
   
   def get_images(self, limit:int = 3) -> list[Resourceish]:
+    '''
+    Returns a list of images from this response object, from the second element in `images` to the last, or up to some limit (inclusive).
+    '''
     if not self.images:
       return []
     if len(self.images) >= limit + 1:
