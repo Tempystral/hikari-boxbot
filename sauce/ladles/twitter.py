@@ -4,6 +4,7 @@ from tweepy import Client, User, Media, Tweet, OAuth2BearerHandler, API
 import aiohttp
 from decouple import config
 from sauce import SauceResponse
+import html
 
 from . import Ladle
 
@@ -46,7 +47,7 @@ class Twitter(Ladle):
 
     response = SauceResponse(
       title = None,
-      description = tweet.text,
+      description = html.unescape(tweet.text),
       url = None,
       author_name = user.username,
       author_url = user.url,
