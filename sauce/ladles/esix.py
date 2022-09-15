@@ -8,6 +8,7 @@ from decouple import config
 from hikari import Color
 from sauce.ladles.abc import LadleException
 from sauce.response import SauceResponse
+from sauce.response.web import eSixPoolResponse
 
 from . import Ladle
 import logging
@@ -51,20 +52,19 @@ class ESixPool(Ladle):
 
     try:
       data = await _api.get(f'/pools/{pool_id}.json', session)
-      first_post = await _api.get(f'/posts/{data["post_ids"][0]}.json', session)
+      esix_pool = eSixPoolResponse(**data)
+      first_post = await _api.get(f'/posts/{esix_pool.post_ids[0]}.json', session)
     except EsixApiException as e:
       logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.message} -> {e.data}")
       return
-    
-    data_title:str = data.get("name")
 
     response = SauceResponse(
-      title=f"Pool{': ' + data_title.replace('_', ' ') if data_title else None}",
-      description=data.get("description"),
-      url=match[0],
-      image=first_post['post']['file']['url'],
+      title = f"Pool{': ' + esix_pool.name.replace('_', ' ') if esix_pool.name else None}",
+      description = esix_pool.description,
+      url = match[0],
+      image = first_post['post']['file']['url'],
       colour = Color(0x246cab),
-      count = data.get("post_count")
+      count = esix_pool.post_count
     )
     return response
     

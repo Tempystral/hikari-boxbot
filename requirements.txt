@@ -1,6 +1,6 @@
 wheel
 aiohttp
-
+bbcode
 hikari
 python-decouple
 hikari-lightbulb
