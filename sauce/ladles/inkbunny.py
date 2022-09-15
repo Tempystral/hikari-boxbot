@@ -7,6 +7,7 @@ from re import Match
 import logging
 
 from sauce.response import SauceResponse
+from utils.mlstripper import strip_tags
 from . import Ladle
 
 logger = logging.getLogger("InkBunny")
@@ -38,13 +39,15 @@ class InkBunny(Ladle):
     
     params = {
       "sid" : self.__sid,
-      "submission_ids" : match.group("id")
+      "submission_ids" : match.group("id"),
+      "show_description_bbcode_parsed" : "yes"
     }
 
     request_url = 'https://inkbunny.net/api_submissions.php'
     async with session.get(request_url, params=params, headers={'User-Agent': 'sauce/0.1'}) as response:
       text = await response.read()
       data = json.loads(text)
+      logger.debug(data)
       if "error_code" in data:
         if int(data["error_code"]) == 2:
           logger.warning("Logged out; Retrying...")
@@ -55,7 +58,7 @@ class InkBunny(Ladle):
 
         response = SauceResponse(
           title = submission.get("title"),
-          description=None,
+          description=strip_tags(submission.get("description_bbcode_parsed")),
           url=match[0],
           images = [f.get("file_url_full") for f in submission.get("files")],
           author_name = submission.get("username"),
