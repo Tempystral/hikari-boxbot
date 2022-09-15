@@ -3,7 +3,7 @@ from hikari import Color
 from tweepy import Client, User, Media, Tweet, OAuth2BearerHandler, API
 import aiohttp
 from decouple import config
-from sauce import SauceResponse
+from sauce.response import SauceResponse
 import html
 
 from . import Ladle

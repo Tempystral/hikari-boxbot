@@ -4,7 +4,7 @@ from decouple import config
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from . import Ladle
-from sauce import SauceResponse
+from sauce.response import SauceResponse
 
 
 class Furaffinity(Ladle):

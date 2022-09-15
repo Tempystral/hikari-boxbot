@@ -10,7 +10,7 @@ from decouple import config
 from hikari import Color
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.utils import JsonDict
-from sauce import SauceResponse
+from sauce.response import SauceResponse
 from utils.mlstripper import strip_tags
 from utils.pixiv_auth import refresh
 from utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames
