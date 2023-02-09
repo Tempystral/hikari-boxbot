@@ -119,3 +119,5 @@ py39/
 test/json/*
 logs/*
 .vscode/settings.json
+env11/*
+.vscode/launch.json

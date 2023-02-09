@@ -1,11 +1,11 @@
+from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Union
+from typing import Literal, Union
 from urllib.parse import urlencode
 
 import bbcode
-from dateutil import parser as dp
 from utils.mlstripper import strip_tags
 
 
@@ -35,15 +35,14 @@ class eSixResponse(WebResponse):
 class eSixPoolResponse(eSixResponse):
   id: int
   name: str
-  created_at: Union[str, datetime]
-  updated_at: Union[str, datetime]
+  created_at: str | datetime
+  updated_at: str | datetime
   creator_id: int
-  description: str
-  is_active: bool
-  category: str
-  is_deleted: bool
-  creator_name: str
+  is_active: bool 
+  category: Literal["series", "collection"]
   post_count: int
+  description: str = ""
+  creator_name: str | None = ""
   post_ids: list[int] = field(default_factory=list)
 
   def __post_init__(self):
