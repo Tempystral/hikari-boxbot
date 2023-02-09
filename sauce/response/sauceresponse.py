@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
-from hikari import Resourceish
+from hikari.files import Resourceish
 
 from hikari.embeds import Embed
 
@@ -25,17 +25,17 @@ class SauceResponse():
   `video` : Optional Resourceish parameter for video content. Use this for webm, mp4, etc.
   `text` : Optional String parameter. If this is set, no embed will be generated, and text will be returned as-is.
   '''
-  title : str | None = None,
-  description : str | None = None,
-  url : str | None = None,
-  image : Resourceish | None = None,
-  images : list[Resourceish] | None = field(default_factory=list),
-  author_name : str | None = None,
-  author_url : str | None = None,
-  author_icon : str | None = None,
-  color : str | None = None,
-  count : int | None = None,
-  video : list[Resourceish] | None = field(default_factory=list),
+  title : str | None = None
+  description : str | None = None
+  url : str | None = None
+  image : Resourceish | None = None
+  images : list[Resourceish] | None = field(default_factory=list)
+  author_name : str | None = None
+  author_url : str | None = None
+  author_icon : str | None = None
+  color : str | None = None
+  count : int | None = None
+  video : Resourceish | None = None
   text : str | None = None
 
   def __post_init__(self):
