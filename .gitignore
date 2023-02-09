@@ -118,3 +118,4 @@ py39/
 .cache/
 test/json/*
 logs/*
+.vscode/settings.json

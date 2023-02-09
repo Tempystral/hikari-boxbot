@@ -9,7 +9,7 @@ from aiohttp import ClientSession
 from hikari import Color
 from scalpl import Cut
 
-from bot.constants import EHENTAI_DESC
+import bot.constants
 from sauce.response import SauceResponse
 
 from . import Ladle
@@ -22,9 +22,7 @@ class EHentai(Ladle):
     self.pattern = r'https?://(?P<site>e-|ex)hentai\.org/(?P<type>g|s)/(?P<group_1>\w+)/(?P<group_2>\w+)(-(?P<page_num>\d+))?'
     self.hotlinking_allowed = True
     self._request_url = 'https://api.e-hentai.org/api.php'
-    self._restricted_tags = [
-      "abortion", "bestiality", "lolicon", "shotacon", "toddlercon", #"incest"
-    ]
+    self._restricted_tags = bot.constants.RESTRICTED_TAGS
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     gallery_id:int = None
@@ -57,7 +55,7 @@ class EHentai(Ladle):
   
   def _create_response(self, metadata:Cut, gallery_id:int, gallery_token:str) -> SauceResponse:
     tags = metadata.get("tags")
-    prefix, description = (("ex", EHENTAI_DESC)
+    prefix, description = (("ex", bot.constants.EHENTAI_DESC)
                            if self.__is_restricted(tags)
                            else ("e-", ""))
     description += self.__tags_to_string(tags)

@@ -1,55 +1,46 @@
+from __future__ import annotations
+from dataclasses import dataclass, field
 from typing import Optional
 from hikari import Resourceish
 
 from hikari.embeds import Embed
 
+@dataclass
 class SauceResponse():
   '''
   A response object containing all the contents required for an embed.
+
+  Parameters
+  ----------
+  `title` : The title of the post.
+  `description` : The description of the post, if it exists.
+  `url` : A link to the post.
+  `image` : A Resourceish type. Can be a url to an image or a file, or any other resource accepted by Hikari. If not set, defaults to the first item in `images`
+  `images` : A list of Resourceish objects. Use this for albums and collections linked together from one post.
+  `author_name` : The display name of whoever posted the image(s).
+  `author_url` : A link to the author's profile.
+  `author_icon` : The author's profile image.
+  `color` : Optional color for the embed. British spelling is ignored if both are set.
+  `count` : Optional post count. This value will be derived from the length of `images` if it is set, overriding this value.
+  `video` : Optional Resourceish parameter for video content. Use this for webm, mp4, etc.
+  `text` : Optional String parameter. If this is set, no embed will be generated, and text will be returned as-is.
   '''
-  def __init__(self,
-               title : Optional[str] = None,
-               description : Optional[str] = None,
-               url : Optional[str] = None,
-               image : Optional[Resourceish] = None,
-               images : Optional[list[Resourceish]] = None,
-               author_name : Optional[str] = None,
-               author_url : Optional[str] = None,
-               author_icon : Optional[str] = None,
-               color : Optional[str] = None,
-               colour : Optional[str] = None,
-               count : Optional[int] = None,
-               video : Optional[Resourceish] = None,
-               text : Optional[str] = None
-               ):
-    '''
-    Parameters
-    ----------
-    `title` : The title of the post.
-    `description` : The description of the post, if it exists.
-    `url` : A link to the post.
-    `image` : A Resourceish type. Can be a url to an image or a file, or any other resource accepted by Hikari. If not set, defaults to the first item in `images`
-    `images` : A list of Resourceish objects. Use this for albums and collections linked together from one post.
-    `author_name` : The display name of whoever posted the image(s).
-    `author_url` : A link to the author's profile.
-    `author_icon` : The author's profile image.
-    `color`/`colour` : Optional color for the embed. British spelling is ignored if both are set.
-    `count` : Optional post count. This value will be derived from the length of `images` if it is set, overriding this value.
-    `video` : Optional Resourceish parameter for video content. Use this for webm, mp4, etc.
-    `text` : Optional String parameter. If this is set, no embed will be generated, and text will be returned as-is.
-    '''
-    self.title = title
-    self.description = description
-    self.url = url
-    self.images = images
-    self.image = (image if image else (images[0] if images else None))
-    self.author_name = author_name
-    self.author_url = author_url
-    self.author_icon = author_icon
-    self.colour = color if not colour else colour # Defaults to the US spelling if both are set for some reason
-    self.count = len(images) if images else count 
-    self.video = video
-    self.text = text
+  title : str | None = None,
+  description : str | None = None,
+  url : str | None = None,
+  image : Resourceish | None = None,
+  images : list[Resourceish] | None = field(default_factory=list),
+  author_name : str | None = None,
+  author_url : str | None = None,
+  author_icon : str | None = None,
+  color : str | None = None,
+  count : int | None = None,
+  video : list[Resourceish] | None = field(default_factory=list),
+  text : str | None = None
+
+  def __post_init__(self):
+    self.image = (self.image if self.image else (self.images[0] if self.images else None))
+    self.count = len(self.images) if self.images else self.count
 
   def to_embed(self) -> Optional[Embed]:
     '''
@@ -57,10 +48,12 @@ class SauceResponse():
     '''
     if self.text:
       return None
-    embed = Embed(title = self.title, description=self.description, url=self.url, colour=self.colour)
-    embed.set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
-    embed.set_image(self.image)
-    if self.images or self.count:
+    embed = (
+      Embed(title = self.title, description=self.description, url=self.url, color=self.color)
+      .set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
+      .set_image(self.image)
+    )
+    if self.count:
       embed.add_field(name="Image Count", value=self.count)
     return embed
   

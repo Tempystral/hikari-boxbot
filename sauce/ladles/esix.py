@@ -63,7 +63,7 @@ class ESixPool(Ladle):
       description = esix_pool.description,
       url = match[0],
       image = first_post['post']['file']['url'],
-      colour = Color(0x246cab),
+      color = Color(0x246cab),
       count = esix_pool.post_count
     )
     return response

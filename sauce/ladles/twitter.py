@@ -54,7 +54,7 @@ class Twitter(Ladle):
       author_icon = user.profile_image_url,
       images = images,
       text = text,
-      colour = Color(0x1d9bf0)
+      color = Color(0x1d9bf0)
     )
 
     return response

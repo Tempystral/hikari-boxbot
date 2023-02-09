@@ -7,6 +7,8 @@ logger = logging.getLogger("BoxBot.sauce.checks")
 
 async def _user_replied_to(context: lb.Context) -> bool:
   msg:Message = await get_message_in_datastore(context)
+  if not msg.referenced_message:
+    return True
   try:
     if not msg.referenced_message.author == context.author:
       context.bot.d.pop(msg.id)

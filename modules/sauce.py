@@ -100,9 +100,10 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
   # Finally, delete both messages
   del_msgs.append(msg)
   for message in del_msgs:
-    logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id}")
+    logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id or 'deleted message'}")
     await message.delete()
-  await msg.referenced_message.delete()
+  if message.referenced_message:
+    await msg.referenced_message.delete()
 
   await ctx.respond(f"Post {msg.id} successfully removed!", flags=hikari.MessageFlag.EPHEMERAL) #(f"Unsauced message: {msg.id}\nReplying to message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
 
