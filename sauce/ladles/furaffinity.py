@@ -31,8 +31,8 @@ class Furaffinity(Ladle):
 
       img = 'https:' + soup.select('#submissionImg')[0]['data-fullview-src']
 
-      if rating == "General":
-        return None
+      # if rating == "General":
+      #   return None
       return SauceResponse(title=title, description=description, url=url, author_name=author, author_icon=icon_url, image=img)
       
       #{'url': url, 'name': author, 'icon_url': icon_url, 'title': title, 'description': description, 'images': [img]}
