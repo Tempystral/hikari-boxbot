@@ -26,7 +26,7 @@ class Tweet:
   replying_to: str | None
   replying_to_status: str | None
   color: str | None
-  twitter_card: Literal['tweet', 'summary', 'summary_image_large', 'player']
+  twitter_card: str
   media: Optional["Media"]
   quote: Optional["Quote"]
   poll: Optional["Poll"]
