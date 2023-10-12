@@ -13,3 +13,4 @@ requests>=2.28.2
 socks>=0
 pixivpy-async[socks]>=1.2.14
 wheel>=0.38.4
+dacite>=1.8.1
