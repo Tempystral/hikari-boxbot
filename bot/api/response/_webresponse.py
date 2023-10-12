@@ -2,7 +2,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Literal, Union
+from typing import Literal, TypedDict, Union
 from urllib.parse import urlencode
 
 import bbcode
@@ -35,8 +35,8 @@ class eSixResponse(WebResponse):
 class eSixPoolResponse(eSixResponse):
   id: int
   name: str
-  created_at: str | datetime
-  updated_at: str | datetime
+  created_at: datetime
+  updated_at: datetime
   creator_id: int
   is_active: bool 
   category: Literal["series", "collection"]
@@ -49,3 +49,74 @@ class eSixPoolResponse(eSixResponse):
     self.description = strip_tags(self.parseBBCode(self.description))
     self.created_at = self.parseTimestamp(self.created_at)
     self.updated_at = self.parseTimestamp(self.updated_at)
+
+@dataclass()
+class eSixPostResponse(eSixResponse):
+  id: int
+  created_at: datetime
+  updated_at: datetime
+  change_seq: int
+  flags: 'ESixFlags'
+  rating: Literal['s', 'q', 'e']
+  fav_count: int
+  relationships: 'ESixRelationship'
+  approver_id: int | None
+  uploader_id: int
+  description: str | None
+  comment_count: int
+  is_favorited: bool
+  has_notes: bool
+  duration: float | None
+  file: list['ESixFile'] = field(default_factory=list)
+  preview: list['ESixPreview'] = field(default_factory=list)
+  sample: list['ESixSample'] = field(default_factory=list)
+  score: list['ESixScore'] = field(default_factory=list)
+  tags: list[TypedDict[str, list[str]]] = field(default_factory=list)
+  locked_tags: list[str] = field(default_factory=list)
+  sources: list[str] = field(default_factory=list)
+  pools: list[int] = field(default_factory=list)
+
+  def __post_init__(self):
+    self.description = strip_tags(self.parseBBCode(self.description))
+    self.created_at = self.parseTimestamp(self.created_at)
+    self.updated_at = self.parseTimestamp(self.updated_at)
+
+@dataclass
+class ESixFile():
+  width: int
+  height: int
+  ext: str
+  size: int
+  md5: str
+  url: str
+
+class ESixSample(TypedDict):
+  has: bool
+  width: int | None
+  height: int | None
+  url: str | None
+  alternates: dict | None
+
+class ESixPreview(TypedDict):
+  width: int
+  height: int
+  url: str
+
+class ESixScore(TypedDict):
+  up: int
+  down: int
+  total: int
+
+class ESixFlags(TypedDict):
+  pending: bool
+  flagged: bool
+  note_locked: bool
+  status_locked: bool
+  rating_locked: bool
+  deleted: bool
+
+class ESixRelationship(TypedDict):
+  parent_id: int | None
+  has_children: bool
+  has_active_children: bool
+  children: list[int]
