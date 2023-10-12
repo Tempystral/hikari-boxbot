@@ -1,3 +1,3 @@
-from .sauceresponse import SauceResponse
-from .web import eSixPoolResponse
-from .fxtwitter_response import FXTwitterResponse, Tweet
+from ._sauceresponse import SauceResponse
+from ._webresponse import eSixPoolResponse
+from ._fxtwitter import FXTwitterResponse, Tweet

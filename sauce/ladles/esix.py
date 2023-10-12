@@ -8,7 +8,7 @@ from decouple import config
 from hikari import Color
 from sauce.ladles.abc import LadleException
 from sauce.response import SauceResponse
-from sauce.response.web import eSixPoolResponse
+from sauce.response import eSixPoolResponse
 
 from . import Ladle
 import logging
