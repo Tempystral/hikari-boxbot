@@ -24,7 +24,8 @@ class ESixPool(Ladle):
 
     try:
       pool = await _api.get_pool(pool_id)
-      posts = await self.__get_pool_images(pool, session)
+      posts = await self.__get_pool_images(pool)
+      posts = sorted(posts, key=lambda p: p.created_at)
     except EsixApiException as e:
       logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.message} -> {e.data}")
       return
@@ -33,21 +34,15 @@ class ESixPool(Ladle):
       title = f"Pool{': ' + pool.name.replace('_', ' ') if pool.name else None}",
       description = pool.description,
       url = match[0],
-      images = [ post['post']['file']['url'] for post in posts ],
+      images = [ post.file.url for post in posts ],
       color = Color(0x246cab),
       count = pool.post_count,
       timestamp=pool.created_at
     )
     return response
   
-  def __get_pool_images(self, pool: eSixPoolResponse, session: ClientSession, limit:int = 4):
-    result = asyncio.gather(
-      *[self.__get_pool_image(id, session) for id in pool.post_ids[:limit]]
-    )
-    return result
-
-  def __get_pool_image(self, id: int, session: ClientSession):
-    return _api.__get(f'/posts/{id}.json', session)
+  def __get_pool_images(self, pool: eSixPoolResponse, limit:int = 4):
+    return _api.get_posts(pool.post_ids[:limit])
     
   async def cleanup(self, match:Match) -> None:
       pass

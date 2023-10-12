@@ -1,11 +1,15 @@
 import json
+import logging
 from aiohttp import BasicAuth, ClientSession
+import dacite
 from decouple import config
 
 import asyncio
 
 from .exception import LadleException
-from .response import eSixPoolResponse
+from .response import eSixPoolResponse, eSixPostResponse
+
+logger = logging.getLogger("bot.api.e621")
 
 class ESixApi:
   def __init__(self, session:ClientSession|None = None):
@@ -26,10 +30,10 @@ class ESixApi:
   def session(self, session: ClientSession):
     self._session = session
 
-  async def __get(self, url: str) -> dict:
+  async def __get(self, url: str, params: dict = {}) -> dict:
     await asyncio.sleep(self.sleep_timer)
     req_url = self._base_url + url
-    async with self.session.get(req_url, headers={'User-Agent': 'Sauce/2.0'}, auth=self._auth) as response:
+    async with self.session.get(req_url, params=params, headers={'User-Agent': 'Sauce/2.0'}, auth=self._auth) as response:
       try:
         result = json.loads(await response.read())
         assert isinstance(result, dict)
@@ -47,11 +51,14 @@ class ESixApi:
     return eSixPoolResponse(**response)
 
   async def get_post(self, id: int):
-    # response = await self.__get(f'/posts/{id}.json')
-    pass
+    response = await self.__get(f'/posts/{id}.json')
+    return dacite.from_dict(data_class=eSixPostResponse, data=response["post"])
 
   async def get_posts(self, ids: list[int]):
-    pass
+    tags = [f"id:{','.join(str(id) for id in ids)}", "order:id_desc"]
+    params = { "tags": "+".join(tags) }
+    response = await self.__get(f'/posts.json', params=params)
+    return [dacite.from_dict(data_class=eSixPostResponse, data=post) for post in response["posts"]]
 
 
 class EsixApiException(LadleException):
