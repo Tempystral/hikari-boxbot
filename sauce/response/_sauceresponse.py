@@ -1,9 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional
+from datetime import UTC, datetime, timezone, tzinfo
+import logging
+from typing import Any, Optional
 from hikari.files import Resourceish
 
 from hikari.embeds import Embed
+
+logger = logging.getLogger("sauce.response.SauceResponse")
 
 @dataclass
 class SauceResponse():
@@ -24,6 +28,7 @@ class SauceResponse():
   `count` : Optional post count. This value will be derived from the length of `images` if it is set, overriding this value.
   `video` : Optional Resourceish parameter for video content. Use this for webm, mp4, etc.
   `text` : Optional String parameter. If this is set, no embed will be generated, and text will be returned as-is.
+  `timestamp`: Optional parameter. May be any one of a datetime, int, float, or ISO-format date string.
   '''
   title : str | None = None
   description : str | None = None
@@ -37,10 +42,12 @@ class SauceResponse():
   count : int | None = None
   video : Resourceish | None = None
   text : str | None = None
+  timestamp: datetime | int | float | str | None = None
 
   def __post_init__(self):
     self.image = (self.image if self.image else (self.images[0] if self.images else None))
     self.count = len(self.images) if self.images else self.count
+    self.timestamp = self.__init_timestamp(self.timestamp)
 
   def to_embeds(self) -> Optional[list[Embed]]:
     '''
@@ -49,7 +56,7 @@ class SauceResponse():
     if self.text:
       return None
     embed = (
-      Embed(title = self.title, description=self.description, url=self.url, color=self.color)
+      Embed(title = self.title, description=self.description, url=self.url, color=self.color, timestamp=self.timestamp)
       .set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
       .set_image(self.image)
     )
@@ -71,5 +78,16 @@ class SauceResponse():
     else:
       return self.images[1:]
   
+  def __init_timestamp(self, ts: int | float | str | datetime):
+    if isinstance(ts, int | float):
+      return datetime.fromtimestamp(ts, tz=UTC)
+    elif isinstance(ts, str):
+      try:
+        return datetime.fromisoformat(ts)
+      except TypeError as e:
+        logger.error("Attempted to marshal a non-ISO string into a datetime!")
+        return None
+    return ts
+
   def __str__(self) -> str:
     return str(self.__dict__)

@@ -63,7 +63,8 @@ class InkBunny(Ladle):
           author_name = submission.get("username"),
           author_icon = submission.get("user_icon_url_small") or r'https://qc.ib.metapix.net/images78/usericons/large/noicon.png',
           author_url = f"https://www.inkbunny.net/{submission.get('username')}",
-          color = Color(0x73d216)
+          color = Color(0x73d216),
+          timestamp=submission.get("create_datetime")
         )
         return response
               

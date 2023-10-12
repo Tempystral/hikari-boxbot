@@ -37,9 +37,10 @@ class XTwitter(Ladle):
       author_url = tweet.author.url,
       author_icon = tweet.author.avatar_url,
       images = photos,
-      text = f"https://fxtwitter.com/{user}/status/{tweet_id}/" if videos else None,
-      video = videos[0] if videos[0] else None,
-      color = Color(0x1d9bf0)
+      text = None, #f"https://fxtwitter.com/{user}/status/{tweet_id}/" if videos else None,
+      video = videos[0] if videos else None,
+      color = Color(0x1d9bf0),
+      timestamp = tweet.created_timestamp
     )
 
     return response
