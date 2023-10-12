@@ -1,13 +1,11 @@
-import html
 import json
 from logging import getLogger
 from re import Match
 
 import aiohttp
 from dacite import from_dict
-from decouple import config
 from hikari import Color
-from api.response import FXTwitterResponse, SauceResponse, Tweet
+from bot.api.response import FXTwitterResponse, SauceResponse, Tweet
 
 from . import Ladle
 

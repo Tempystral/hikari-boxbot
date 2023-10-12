@@ -6,7 +6,7 @@ from decouple import config
 from re import Match
 import logging
 
-from api.response import SauceResponse
+from bot.api.response import SauceResponse
 from utils.mlstripper import strip_tags
 from . import Ladle
 
