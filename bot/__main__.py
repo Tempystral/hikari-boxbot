@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import os
 import asyncio
-from bot import create
+import os
 from decouple import config
+
+from . import create
 
 if __name__ == "__main__":
 	if os.name != "nt":
