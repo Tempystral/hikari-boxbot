@@ -7,7 +7,7 @@ from hikari.files import Resourceish
 
 from hikari.embeds import Embed
 
-logger = logging.getLogger("sauce.response.SauceResponse")
+logger = logging.getLogger("api.response.SauceResponse")
 
 @dataclass
 class SauceResponse():

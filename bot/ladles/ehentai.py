@@ -10,7 +10,7 @@ from hikari import Color
 from scalpl import Cut
 
 from utils.constants import EHENTAI_DESC, RESTRICTED_TAGS
-from sauce.response import SauceResponse
+from api.response import SauceResponse
 
 from . import Ladle
 

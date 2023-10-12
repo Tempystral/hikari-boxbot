@@ -5,10 +5,10 @@ import hikari
 import lightbulb as lb
 from decouple import config
 
-from sauce import util
-from sauce.response import SauceResponse
+from utils import sauce_utils
+from api.response import SauceResponse
 from sauce.checks import on_bot_message, reply_only, user_replied_to
-from sauce.ladles import Ladle
+from ladles import Ladle
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 
@@ -26,7 +26,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
       return
   
   # Get a list of links from the message
-  msg = util.remove_spoilered_text(event.content)
+  msg = sauce_utils.remove_spoilered_text(event.content)
   #logger.debug(f"Message: {msg}")
   links = _find_links(msg)
   if links: logger.debug(f"Found the following links: {[m for _, m in links]}")
@@ -119,7 +119,7 @@ def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
 
 def _set_extractors(bot: lb.BotApp) -> None:
   l_extractors = config("EXTRACTORS", cast=str).split(",")
-  bot.d.extractors = util.compile_patterns(util.get_ladles(l_extractors))
+  bot.d.extractors = sauce_utils.compile_patterns(sauce_utils.get_ladles(l_extractors))
 
 def _contains_embed(msg: hikari.Message):
   try:

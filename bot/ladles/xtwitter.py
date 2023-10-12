@@ -7,7 +7,7 @@ import aiohttp
 from dacite import from_dict
 from decouple import config
 from hikari import Color
-from sauce.response import FXTwitterResponse, SauceResponse, Tweet
+from api.response import FXTwitterResponse, SauceResponse, Tweet
 
 from . import Ladle
 
