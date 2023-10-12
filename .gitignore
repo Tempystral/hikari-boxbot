@@ -121,3 +121,5 @@ logs/*
 .vscode/settings.json
 env11/*
 .vscode/launch.json
+.vscode/hikari-boxbot.code-workspace
+test/

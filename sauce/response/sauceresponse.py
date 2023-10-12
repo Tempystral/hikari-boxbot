@@ -42,7 +42,7 @@ class SauceResponse():
     self.image = (self.image if self.image else (self.images[0] if self.images else None))
     self.count = len(self.images) if self.images else self.count
 
-  def to_embed(self) -> Optional[Embed]:
+  def to_embeds(self) -> Optional[list[Embed]]:
     '''
     Creates a discord embed from the response object containing all the response details. Also contains the first image in `images`, if any.
     '''
@@ -55,7 +55,10 @@ class SauceResponse():
     )
     if self.count:
       embed.add_field(name="Image Count", value=self.count)
-    return embed
+      
+    # Test at generating extra embeds from multiple images?
+    extra_embeds = [Embed(url=self.url).set_image(image) for image in self.images[1:]]
+    return [embed, *extra_embeds]
   
   def get_images(self, limit:int = 3) -> list[Resourceish]:
     '''
