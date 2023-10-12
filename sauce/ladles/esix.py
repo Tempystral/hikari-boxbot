@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import TaskGroup, tasks
 import json
 from re import Match
 from typing import Dict
@@ -52,7 +53,7 @@ class ESixPool(Ladle):
     try:
       data = await _api.get(f'/pools/{pool_id}.json', session)
       esix_pool = eSixPoolResponse(**data)
-      first_post = await _api.get(f'/posts/{esix_pool.post_ids[0]}.json', session)
+      posts = await self.__get_pool_images(esix_pool, session)
     except EsixApiException as e:
       logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.message} -> {e.data}")
       return
@@ -61,11 +62,21 @@ class ESixPool(Ladle):
       title = f"Pool{': ' + esix_pool.name.replace('_', ' ') if esix_pool.name else None}",
       description = esix_pool.description,
       url = match[0],
-      image = first_post['post']['file']['url'],
+      images = [ post['post']['file']['url'] for post in posts ],
       color = Color(0x246cab),
-      count = esix_pool.post_count
+      count = esix_pool.post_count,
+      timestamp=esix_pool.created_at
     )
     return response
+  
+  def __get_pool_images(self, pool: eSixPoolResponse, session: ClientSession, limit:int = 4):
+    result = asyncio.gather(
+      *[self.__get_pool_image(id, session) for id in pool.post_ids[:limit]]
+    )
+    return result
+
+  def __get_pool_image(self, id: int, session: ClientSession):
+    return _api.get(f'/posts/{id}.json', session)
     
   async def cleanup(self, match:Match) -> None:
       pass
