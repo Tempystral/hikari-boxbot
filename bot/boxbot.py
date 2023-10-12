@@ -37,5 +37,5 @@ def create(token:str, guild_id:str, log_level:str) -> BoxBot:
   bot.subscribe(hikari.StartingEvent, bot.on_starting)
   bot.subscribe(hikari.StoppingEvent, bot.on_stopping)
   # Load extensions
-  bot.load_extensions_from("./modules/", must_exist=False)
+  bot.load_extensions_from("./bot/modules/", must_exist=False)
   return bot
