@@ -20,23 +20,23 @@ class ESixPool(Ladle):
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     pool_id = match.group("id")
+    _api.session = session
 
     try:
-      data = await _api.get(f'/pools/{pool_id}.json', session)
-      esix_pool = eSixPoolResponse(**data)
-      posts = await self.__get_pool_images(esix_pool, session)
+      pool = await _api.get_pool(pool_id)
+      posts = await self.__get_pool_images(pool, session)
     except EsixApiException as e:
       logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.message} -> {e.data}")
       return
 
     response = SauceResponse(
-      title = f"Pool{': ' + esix_pool.name.replace('_', ' ') if esix_pool.name else None}",
-      description = esix_pool.description,
+      title = f"Pool{': ' + pool.name.replace('_', ' ') if pool.name else None}",
+      description = pool.description,
       url = match[0],
       images = [ post['post']['file']['url'] for post in posts ],
       color = Color(0x246cab),
-      count = esix_pool.post_count,
-      timestamp=esix_pool.created_at
+      count = pool.post_count,
+      timestamp=pool.created_at
     )
     return response
   
@@ -47,7 +47,7 @@ class ESixPool(Ladle):
     return result
 
   def __get_pool_image(self, id: int, session: ClientSession):
-    return _api.get(f'/posts/{id}.json', session)
+    return _api.__get(f'/posts/{id}.json', session)
     
   async def cleanup(self, match:Match) -> None:
       pass
