@@ -11,9 +11,9 @@ from hikari import Color
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.utils import JsonDict
 from bot.api.response import SauceResponse
-from utils.mlstripper import strip_tags
-from utils.pixiv_auth import refresh
-from utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames
+from bot.utils.mlstripper import strip_tags
+from bot.utils.pixiv_auth import refresh
+from bot.utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames
 
 from . import Ladle
 

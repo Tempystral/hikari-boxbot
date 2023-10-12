@@ -5,9 +5,9 @@ import hikari
 import lightbulb as lb
 from decouple import config
 
-from utils import sauce_utils
+from bot.utils import sauce_utils
 from bot.api.response import SauceResponse
-from utils.checks import on_bot_message, reply_only, user_replied_to
+from bot.utils.checks import on_bot_message, reply_only, user_replied_to
 from bot.ladles import Ladle
 
 logger = logging.getLogger("BoxBot.modules.sauce")

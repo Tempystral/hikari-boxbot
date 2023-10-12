@@ -7,7 +7,7 @@ from re import Match
 import logging
 
 from bot.api.response import SauceResponse
-from utils.mlstripper import strip_tags
+from bot.utils.mlstripper import strip_tags
 from . import Ladle
 
 logger = logging.getLogger("InkBunny")

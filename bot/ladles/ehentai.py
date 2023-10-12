@@ -9,7 +9,7 @@ from aiohttp import ClientSession
 from hikari import Color
 from scalpl import Cut
 
-from utils.constants import EHENTAI_DESC, RESTRICTED_TAGS
+from bot.utils.constants import EHENTAI_DESC, RESTRICTED_TAGS
 from bot.api.response import SauceResponse
 
 from . import Ladle

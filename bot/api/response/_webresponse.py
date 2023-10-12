@@ -6,7 +6,7 @@ from typing import Literal, Union
 from urllib.parse import urlencode
 
 import bbcode
-from utils.mlstripper import strip_tags
+from bot.utils.mlstripper import strip_tags
 
 
 class WebResponse():

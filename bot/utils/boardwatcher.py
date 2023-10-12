@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Tuple
 from aiohttp import ClientError
 
-from utils.fourchanaio import Chan, Post
+from bot.utils.fourchanaio import Chan, Post
 
 logger = getLogger("boardwatcher")
 

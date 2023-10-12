@@ -2,7 +2,7 @@ import logging
 import hikari
 from aiohttp import ClientSession
 from lightbulb import BotApp
-from utils import loghelper
+from bot.utils import loghelper
 
 logger = logging.getLogger("BoxBot")
 

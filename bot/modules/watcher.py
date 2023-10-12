@@ -3,8 +3,8 @@ from logging import getLogger
 from decouple import config
 import lightbulb
 from lightbulb.ext import tasks
-from utils import BoardWatcher
-from utils.fourchanaio import Chan, Post
+from bot.utils import BoardWatcher
+from bot.utils.fourchanaio import Chan, Post
 
 logger = getLogger("Boxbot.modules.watcher")
 

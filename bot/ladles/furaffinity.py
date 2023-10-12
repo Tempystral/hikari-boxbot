@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from re import Match
 
-from aiohttp import ClientSessions
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from decouple import config
 
