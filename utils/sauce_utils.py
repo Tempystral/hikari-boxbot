@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 import re
 from io import BytesIO
@@ -6,7 +5,7 @@ from typing import Tuple
 from aiohttp import ClientSession
 from hikari import Resourceish
 
-import sauce.ladles
+import bot.ladles
 
 logger = logging.getLogger("Boxbot.sauce.util")
 
@@ -17,10 +16,10 @@ def remove_spoilered_text(message:str) -> str:
   despoilered += strs[-1] if len(strs) % 2 == 0 else ''
   return despoilered
 
-def get_ladles(l_ladles:list[str]) -> list[sauce.ladles.Ladle]:
-  return [getattr(sauce.ladles, name.strip())() for name in l_ladles]
+def get_ladles(l_ladles:list[str]) -> list[bot.ladles.Ladle]:
+  return [getattr(bot.ladles, name.strip())() for name in l_ladles]
 
-def compile_patterns(l_ladles:list[sauce.ladles.Ladle]) -> list[Tuple[sauce.ladles.Ladle, re.Pattern]]:
+def compile_patterns(l_ladles:list[bot.ladles.Ladle]) -> list[Tuple[bot.ladles.Ladle, re.Pattern]]:
   return [(ladle, re.compile(ladle.pattern)) for ladle in l_ladles]
 
 async def get_filesize(url:str, session: ClientSession):
