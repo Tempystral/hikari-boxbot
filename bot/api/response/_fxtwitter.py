@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Dict, List, Literal, Optional
 
 @dataclass
 class FXTwitterResponse:
@@ -9,38 +9,40 @@ class FXTwitterResponse:
 
 @dataclass
 class Tweet:
-  url: str
   id: str
+  url: str
   text: str
   author: "Author"
+  created_at: str
+  created_timestamp: int
   replies: int
   retweets: int
   likes: int
-  color: str | None
-  twitter_card: str
-  created_at: str
-  created_timestamp: int
+  views: int | None
   possibly_sensitive: bool | None
-  views: int
   is_note_tweet: bool
   lang: str
+  source: str
   replying_to: str | None
   replying_to_status: str | None
+  color: str | None
+  twitter_card: Literal['tweet', 'summary', 'summary_image_large', 'player']
   media: Optional["Media"]
-  source: str
   quote: Optional["Quote"]
+  poll: Optional["Poll"]
+  translation: Optional["TweetTranslation"]
 
 @dataclass
 class Author:
   id: str
   name: str
   screen_name: str
-  avatar_url: str
+  avatar_url: str | None
   avatar_color: str | None
-  banner_url: str
-  description: str
-  location: str
-  url: str
+  banner_url: str | None
+  description: str | None
+  location: str | None
+  url: str | None
   followers: int
   following: int
   joined: str
@@ -76,15 +78,22 @@ class Quote:
   source: str
 
 @dataclass
+class Poll:
+  choices: List[Dict]
+  total_votes: int
+  ends_at: str
+  time_left_en: str
+
+@dataclass
 class AllMediaEntity:
   type: str
   url: str
   width: int
   height: int
-  altText: str | None
-  thumbnail_url: str | None
-  duration: float | None
-  format: str | None
+  duration: float | None = None
+  altText: str | None = None
+  format: str | None = None
+  thumbnail_url: str | None = None
 
 @dataclass
 class Photo:
@@ -122,10 +131,15 @@ class Media:
   '''Provides data for a media object'''
   mosaic: Mosaic | None
   all: list[AllMediaEntity] | None = field(default_factory=list)
+  external: list[AllMediaEntity] | None = field(default_factory=list)
   photos: list[Photo] | None = field(default_factory=list)
   videos: list[Video] | None = field(default_factory=list)
 
-
+@dataclass
+class TweetTranslation:
+  text: str
+  source_lang: str
+  target_lang: str
 
 
 
