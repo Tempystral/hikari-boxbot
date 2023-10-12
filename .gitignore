@@ -118,3 +118,8 @@ py39/
 .cache/
 test/json/*
 logs/*
+.vscode/settings.json
+env11/*
+.vscode/launch.json
+.vscode/hikari-boxbot.code-workspace
+test/

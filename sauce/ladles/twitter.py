@@ -3,7 +3,7 @@ from hikari import Color
 from tweepy import Client, User, Media, Tweet, OAuth2BearerHandler, API
 import aiohttp
 from decouple import config
-from sauce import SauceResponse
+from sauce.response import SauceResponse
 import html
 
 from . import Ladle
@@ -15,7 +15,6 @@ logger = getLogger("ladles.twitter")
 class Twitter(Ladle):
   def __init__(self):
     self.pattern = r'https?://(?:mobile\.)?twitter\.com/[a-zA-Z0-9_]+/status/(?P<id>\d+)'
-    self.hotlinking_allowed = True
 
   async def extract(self, match: Match, session: aiohttp.ClientSession) -> SauceResponse:
     token = config("TWITTER_BEARER")
@@ -54,7 +53,7 @@ class Twitter(Ladle):
       author_icon = user.profile_image_url,
       images = images,
       text = text,
-      colour = Color(0x1d9bf0)
+      color = Color(0x1d9bf0)
     )
 
     return response

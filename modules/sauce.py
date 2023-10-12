@@ -1,16 +1,14 @@
 import logging
-from re import Match
-from typing import Tuple
+from re import Match, Pattern
 
 import hikari
-
 import lightbulb as lb
-from bot import constants
 from decouple import config
-from sauce import SauceResponse, util
+
+from sauce import util
+from sauce.response import SauceResponse
 from sauce.checks import on_bot_message, reply_only, user_replied_to
-from sauce.ladles.abc import Ladle
-from sauce.ladles.twitter import Twitter
+from sauce.ladles import Ladle
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 
@@ -39,28 +37,17 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     logger.debug(f"Extracted Data: {response}")
     
     # Once metadata is retrieved, send it off to the embed generator
-    embed  = response.to_embed()   if response else None
-    images = response.get_images() if response else None
+    embeds  = response.to_embeds()   if response else None
+    # images = response.get_images() if response else None
 
     # Post the embed + suppress embeds on original message
-    if embed or response.text:
+    if embeds or response.text:
       await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
       await event.message.respond(attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
-                                  embed=embed,
+                                  embeds=embeds,
                                   content=response.text,
                                   reply=event.message.id,
                                   mentions_reply=False)
-
-    # Post a second time with images, if applicable
-    if images: # I would use attachments here, but the 8MB limit applies
-      attch = []
-      contents = None
-      if await util.check_file_sizes(images, constants.FILE_UPLOAD_SIZE, sauce_plugin.bot.d.aio_session):
-        attch = images
-      else:
-        contents = "\n".join(images)
-      await event.message.respond(contents, attachments=attch, reply=event.message.id, mentions_reply=False)
-    
     # Finally, if necessary...
     await ladle.cleanup(matched_link)
     logger.info(f"Sauced post {event.message_id} by user {event.member.username}#{event.member.discriminator}: {matched_link.string}")
@@ -99,9 +86,10 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
   # Finally, delete both messages
   del_msgs.append(msg)
   for message in del_msgs:
-    logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id}")
+    logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id or 'deleted message'}")
     await message.delete()
-  await msg.referenced_message.delete()
+  if message.referenced_message:
+    await msg.referenced_message.delete()
 
   await ctx.respond(f"Post {msg.id} successfully removed!", flags=hikari.MessageFlag.EPHEMERAL) #(f"Unsauced message: {msg.id}\nReplying to message: {msg.referenced_message.id}", flags=hikari.MessageFlag.EPHEMERAL)
 
@@ -114,15 +102,24 @@ async def on_error(event: lb.events.CommandErrorEvent) -> None:
     return True # To tell the bot not to propogate this error event up the chain
   
 
-def _find_links(message:str) -> list[Tuple[Ladle, Match]]:
+def _find_links(message:str) -> list[tuple[Ladle, Match]]:
   links = []
-  for ext, pattern in sauce_plugin.bot.d.extractors:
+  ladle: Ladle
+  pattern: Pattern
+  for (ladle, pattern) in _get_extractors(sauce_plugin.bot):
     # Find all the matches for a given extractor's pattern in the message
     matches = pattern.finditer(message)
     #logger.debug(f"Matches for pattern: {pattern}: {matches}")
     if matches:
-      links.extend([(ext, match) for match in matches])
+      links.extend([(ladle, match) for match in matches])
   return links
+
+def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
+    return bot.d.extractors
+
+def _set_extractors(bot: lb.BotApp) -> None:
+  l_extractors = config("EXTRACTORS", cast=str).split(",")
+  bot.d.extractors = util.compile_patterns(util.get_ladles(l_extractors))
 
 def _contains_embed(msg: hikari.Message):
   try:
@@ -134,9 +131,8 @@ def _contains_embed(msg: hikari.Message):
   return False
 
 def load(bot: lb.BotApp) -> None:
-  l_extractors = config("EXTRACTORS", cast=str).split(",")
-  bot.d.extractors = util.compile_patterns(util.get_ladles(l_extractors))
-  logger.debug(f"Loaded extractors: {[(l, e.pattern) for l, e in bot.d.extractors]}")
+  _set_extractors(bot)
+  logger.debug(f"Loaded extractors: {[(l, e.pattern) for l, e in _get_extractors(bot)]}")
   if bot.d.testmode:
     logger.warning("Loaded in test mode!")
   bot.add_plugin(sauce_plugin)

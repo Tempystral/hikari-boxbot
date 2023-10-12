@@ -12,7 +12,7 @@ class BoxBot(BotApp):
     self.guilds = guilds
     super().__init__(token=self.token,
                      prefix="!",
-                     intents=hikari.Intents.ALL_GUILDS,
+                     intents=hikari.Intents.ALL_GUILDS | hikari.Intents.MESSAGE_CONTENT,
                      default_enabled_guilds=guilds,
                      banner="bot",
                      logs=log_level

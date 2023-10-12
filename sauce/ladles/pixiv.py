@@ -10,7 +10,7 @@ from decouple import config
 from hikari import Color
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.utils import JsonDict
-from sauce import SauceResponse
+from sauce.response import SauceResponse
 from utils.mlstripper import strip_tags
 from utils.pixiv_auth import refresh
 from utils.py_ugoira import convert_ugoira_frames, get_ugoira_frames
@@ -26,7 +26,6 @@ class Pixiv(Ladle):
     self.illust_pattern = r'https?://www\.pixiv\.net/[a-z]+/artworks/(?P<id1>\d+)'
     self.direct_pattern = r'https?://i\.pximg\.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
     self.pattern = self.direct_pattern + '|' + self.illust_pattern
-    self.hotlinking_allowed = False
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
@@ -69,7 +68,8 @@ class Pixiv(Ladle):
       author_name = details.illust.user.name,
       author_icon = await self.download(self._get_author_icon(details), session),
       author_url = f"https://www.pixiv.net/en/users/{details.illust.user.id}",
-      color = Color(0x0096fa)
+      color = Color(0x0096fa),
+      timestamp=details.illust.create_date
     )
     return response
 

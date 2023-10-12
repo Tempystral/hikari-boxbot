@@ -4,7 +4,7 @@ from typing import Iterable, Optional
 
 from aiohttp import ClientSession
 
-from sauce import SauceResponse
+from sauce.response import SauceResponse
 
 
 class Ladle(ABC):

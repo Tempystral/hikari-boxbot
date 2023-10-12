@@ -13,7 +13,6 @@ logger = logging.getLogger("ladles.imgur")
 class Imgur(Ladle):
     def __init__(self):
         self.pattern = r'https?://(www\.)?imgur\.com/(?:a|gallery)/(?P<id>\w+)'
-        self.hotlinking_allowed = True
 
     async def extract(self, match:Match, session: aiohttp.ClientSession) -> Optional[Dict]:
         gallery_id = match.group("id")

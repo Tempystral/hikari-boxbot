@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import TaskGroup, tasks
 import json
 from re import Match
 from typing import Dict
@@ -8,6 +9,7 @@ from decouple import config
 from hikari import Color
 from sauce.ladles.abc import LadleException
 from sauce.response import SauceResponse
+from sauce.response import eSixPoolResponse
 
 from . import Ladle
 import logging
@@ -44,29 +46,37 @@ _api = ESixApi()
 class ESixPool(Ladle):
   def __init__(self):
     self.pattern = r'https?://(?P<site>e621|e926)\.net/pools/(?P<id>\d+)'
-    self.hotlinking_allowed = True
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     pool_id = match.group("id")
 
     try:
       data = await _api.get(f'/pools/{pool_id}.json', session)
-      first_post = await _api.get(f'/posts/{data["post_ids"][0]}.json', session)
+      esix_pool = eSixPoolResponse(**data)
+      posts = await self.__get_pool_images(esix_pool, session)
     except EsixApiException as e:
       logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.message} -> {e.data}")
       return
-    
-    data_title:str = data.get("name")
 
     response = SauceResponse(
-      title=f"Pool{': ' + data_title.replace('_', ' ') if data_title else None}",
-      description=data.get("description"),
-      url=match[0],
-      image=first_post['post']['file']['url'],
-      colour = Color(0x246cab),
-      count = data.get("post_count")
+      title = f"Pool{': ' + esix_pool.name.replace('_', ' ') if esix_pool.name else None}",
+      description = esix_pool.description,
+      url = match[0],
+      images = [ post['post']['file']['url'] for post in posts ],
+      color = Color(0x246cab),
+      count = esix_pool.post_count,
+      timestamp=esix_pool.created_at
     )
     return response
+  
+  def __get_pool_images(self, pool: eSixPoolResponse, session: ClientSession, limit:int = 4):
+    result = asyncio.gather(
+      *[self.__get_pool_image(id, session) for id in pool.post_ids[:limit]]
+    )
+    return result
+
+  def __get_pool_image(self, id: int, session: ClientSession):
+    return _api.get(f'/posts/{id}.json', session)
     
   async def cleanup(self, match:Match) -> None:
       pass
@@ -74,7 +84,6 @@ class ESixPool(Ladle):
 """class ESixPost(BaseInfoExtractor):
   def __init__(self):
     self.pattern = r'https?://(?P<site>e621|e926)\.net/posts/(?P<id>\d+)'
-    self.hotlinking_allowed = True
 
   async def extract(self, url: str, session: ClientSession) -> Optional[Dict]:
     groups = re.match(self.pattern, url).groupdict()
@@ -103,7 +112,6 @@ class ESixDirectLink(Ladle):
   '''Extractor to source E621 and E926 direct image links'''
   def __init__(self):
     self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
-    self.hotlinking_allowed = True
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     image_md5 = match.group("md5")
