@@ -26,7 +26,6 @@ class Pixiv(Ladle):
     self.illust_pattern = r'https?://www\.pixiv\.net/[a-z]+/artworks/(?P<id1>\d+)'
     self.direct_pattern = r'https?://i\.pximg\.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
     self.pattern = self.direct_pattern + '|' + self.illust_pattern
-    self.hotlinking_allowed = False
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)

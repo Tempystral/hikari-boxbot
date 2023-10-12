@@ -45,7 +45,6 @@ _api = ESixApi()
 class ESixPool(Ladle):
   def __init__(self):
     self.pattern = r'https?://(?P<site>e621|e926)\.net/pools/(?P<id>\d+)'
-    self.hotlinking_allowed = True
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     pool_id = match.group("id")
@@ -74,7 +73,6 @@ class ESixPool(Ladle):
 """class ESixPost(BaseInfoExtractor):
   def __init__(self):
     self.pattern = r'https?://(?P<site>e621|e926)\.net/posts/(?P<id>\d+)'
-    self.hotlinking_allowed = True
 
   async def extract(self, url: str, session: ClientSession) -> Optional[Dict]:
     groups = re.match(self.pattern, url).groupdict()
@@ -103,7 +101,6 @@ class ESixDirectLink(Ladle):
   '''Extractor to source E621 and E926 direct image links'''
   def __init__(self):
     self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
-    self.hotlinking_allowed = True
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     image_md5 = match.group("md5")

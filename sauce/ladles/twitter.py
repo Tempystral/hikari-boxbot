@@ -15,7 +15,6 @@ logger = getLogger("ladles.twitter")
 class Twitter(Ladle):
   def __init__(self):
     self.pattern = r'https?://(?:mobile\.)?twitter\.com/[a-zA-Z0-9_]+/status/(?P<id>\d+)'
-    self.hotlinking_allowed = True
 
   async def extract(self, match: Match, session: aiohttp.ClientSession) -> SauceResponse:
     token = config("TWITTER_BEARER")

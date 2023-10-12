@@ -20,7 +20,6 @@ logger = logging.getLogger("ladles.ehentai")
 class EHentai(Ladle):
   def __init__(self):
     self.pattern = r'https?://(?P<site>e-|ex)hentai\.org/(?P<type>g|s)/(?P<group_1>\w+)/(?P<group_2>\w+)(-(?P<page_num>\d+))?'
-    self.hotlinking_allowed = True
     self._request_url = 'https://api.e-hentai.org/api.php'
     self._restricted_tags = bot.constants.RESTRICTED_TAGS
 

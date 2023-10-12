@@ -15,7 +15,6 @@ logger = logging.getLogger("InkBunny")
 class InkBunny(Ladle):
   def __init__(self):
     self.pattern = r'https?://.*inkbunny\.net/s/(?P<id>\d+)'
-    #self.hotlinking_allowed = True
     self.__sid = "" # Cannot start as None or else requests fail-unsafe
 
   async def _login(self, session: ClientSession) -> None:
