@@ -7,7 +7,7 @@ from decouple import config
 
 from utils import sauce_utils
 from bot.api.response import SauceResponse
-from sauce.checks import on_bot_message, reply_only, user_replied_to
+from utils.checks import on_bot_message, reply_only, user_replied_to
 from bot.ladles import Ladle
 
 logger = logging.getLogger("BoxBot.modules.sauce")
