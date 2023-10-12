@@ -23,14 +23,3 @@ class Ladle(ABC):
   @abstractmethod
   def cleanup(self, match:Match) -> None:
     pass
-
-class LadleException(Exception):
-  """
-  A base exception for ladles to extend.
-  """
-  def __init__(self, code:Optional[str] = None,
-                     message:Optional[str] = None,
-                     data:Optional[dict] = None):
-    self.code = code
-    self.message = message
-    self.data = data

@@ -1,46 +1,18 @@
 import asyncio
 import json
+import logging
 from re import Match
-from typing import Dict
 
-from aiohttp import ClientSession, BasicAuth
-from decouple import config
+from aiohttp import ClientSession
+from bot.api import ESixApi, EsixApiException
+from bot.api.response import SauceResponse, eSixPoolResponse
 from hikari import Color
-from . import LadleException
-from bot.api.response import SauceResponse
-from bot.api.response import eSixPoolResponse
 
 from . import Ladle
-import logging
 
 logger = logging.getLogger("ladles.esix")
 
-class ESixApi:
-  def __init__(self):
-    self._auth = BasicAuth(
-      config("E621_USER", cast=str),
-      config("E621_KEY", cast=str)
-    )
-    self._base_url = 'https://e621.net'
-    self._request_count = 0
-    self.sleep_timer = 0
-
-  async def get(self, url: str, session: ClientSession) -> Dict:
-    await asyncio.sleep(self.sleep_timer)
-    req_url = self._base_url + url
-    async with session.get(req_url, headers={'User-Agent': 'sauce/0.1'}, auth=self._auth) as response:
-      text = await response.read()
-      result:dict = json.loads(text)
-      #logger.debug(result)
-      if result.get("success"):
-        raise EsixApiException(code=result["code"], message=result["message"], data=result)
-
-    self.sleep_timer = 0.5
-    return result
-
-
 _api = ESixApi()
-
 
 class ESixPool(Ladle):
   def __init__(self):
@@ -131,9 +103,3 @@ return {'name': ", ".join([a.capitalize() for a in artists if a != "conditional_
     'count': data['post_count']
     }
 '''
-
-
-class EsixApiException(LadleException):
-  """
-  The exception to throw when there is a problem retrieving data from e621.net
-  """

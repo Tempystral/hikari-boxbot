@@ -1,4 +1,4 @@
-from .abc import Ladle, LadleException
+from .abc import Ladle
 from .furaffinity import Furaffinity
 from .inkbunny import InkBunny
 from .esix import ESixPool
