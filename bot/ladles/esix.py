@@ -27,8 +27,8 @@ class ESixPool(Ladle):
       posts = await self.__get_pool_images(pool)
       posts = sorted(posts, key=lambda p: pool.post_ids.index(p.id))
     except EsixApiException as e:
-      logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.message} -> {e.data}")
-      return
+      logger.warning(f"Could not retrieve e621 pool data due to error {e.code}: {e.reason} -> {e.data}")
+      raise e
 
     response = SauceResponse(
       title = f"Pool{': ' + pool.name.replace('_', ' ') if pool.name else None}",

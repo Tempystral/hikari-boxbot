@@ -3,12 +3,12 @@ from re import Match, Pattern
 
 import hikari
 import lightbulb as lb
-from decouple import config
-
-from bot.utils import sauce_utils
+from bot.api.exception import LadleException
 from bot.api.response import SauceResponse
-from bot.utils.checks import on_bot_message, reply_only, user_replied_to
 from bot.ladles import Ladle
+from bot.utils import sauce_utils
+from bot.utils.checks import on_bot_message, reply_only, user_replied_to
+from decouple import config
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 
@@ -98,9 +98,14 @@ async def on_error(event: lb.events.CommandErrorEvent) -> None:
   logger.warning(f"Caught exception: {type(event.exception)}")
 
   if isinstance(event.exception, lb.CheckFailure):
-    await event.context.respond("\n".join(event.exception.args[0].split(", ")), flags=hikari.MessageFlag.EPHEMERAL)
+    await event.context.respond(content="\n".join(event.exception.args[0].split(", ")),
+                                flags=hikari.MessageFlag.EPHEMERAL)
     return True # To tell the bot not to propogate this error event up the chain
   
+  elif isinstance(event.exception, LadleException):
+    await event.context.respond(content=f"Could not sauce post for the following reason: {event.exception.message}",
+                                flags=hikari.MessageFlag.EPHEMERAL)
+    return True
 
 def _find_links(message:str) -> list[tuple[Ladle, Match]]:
   links = []
