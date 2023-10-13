@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, TypeAlias
+from typing import List, TypeAlias, TypedDict
 
 EH_ID: TypeAlias = str | int | None
 
@@ -18,7 +18,11 @@ class Category(Enum):
   PRIVATE = "Private"
 
 @dataclass
-class EHResponse:
+class EHGalleryResponse:
+  gmetadata: List["EHGallery"] = field(default_factory=list)
+
+@dataclass
+class EHGallery:
   gid: int
   token: str
   archiver_key: str
@@ -49,3 +53,7 @@ class Torrent:
   name: str
   tsize: str
   fsize: str
+
+class TokenList(TypedDict):
+  gid: int
+  token: str

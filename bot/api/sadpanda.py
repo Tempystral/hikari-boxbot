@@ -2,10 +2,13 @@ import json
 from typing import Optional
 
 from aiohttp import ClientSession
-from bot.api.response import EHResponse
+from bot.api.response import EHGalleryResponse, TokenList
 from bot.utils.constants import RESTRICTED_TAGS
 from dacite import from_dict
 
+import logging
+
+logger = logging.getLogger("bot.api.sadpanda")
 
 class SadPandaApi:
   def __init__(self, session:ClientSession) -> None:
@@ -14,16 +17,24 @@ class SadPandaApi:
     self._session = session
   
   async def get_gallery(self, gallery_id:int, gallery_token:str):
-    # Good response: {'gmetadata': [{'gid': 1234567, 'token': '0asfh80qw8', 'archiver_key': etc... ]}]}
-    # Bad response:  {'gmetadata': [{'gid': 1234567, 'error': 'Key missing, or incorrect key provided.'}]}
     params = {
       "method" : "gdata",
       "gidlist" : [[gallery_id, gallery_token]],
       "namespace" : 1
     }
     data = await self._get(params, self._session)
+    gallery = from_dict(data_class=EHGalleryResponse, data=data)
+    return gallery.gmetadata[0]
   
-  async def _get(self, params:dict, session:ClientSession):
+  async def find_original_gallery(self, gallery_id:int, page_token:str, page_num:int):
+    params = {
+      "method": "gtoken",
+      "pagelist": [[gallery_id, page_token, page_num]]
+    }
+    data = await self._get(params, self._session)
+    return TokenList(**data)
+
+  async def _get(self, params:dict, session:ClientSession) -> dict:
     async with session.post(self._request_url, json=params, headers={'User-Agent': 'sauce/0.1'}) as response:
       text = await response.read()
       data = json.loads(text)
@@ -31,7 +42,7 @@ class SadPandaApi:
         raise EHMetadataError(f'E-Hentai API error: {data["error"]}')
       # TODO If you request multiple galleries and one of them errors out, this becomes a problem
       # It's fine for now since my use case is only ever single-gallery lookups
-      return [ from_dict(data_class=EHResponse, data=gallery) for gallery in data["gmetadata"] ]
+      return data
     
   def __error_in_response(self, data:dict[str, str]):
     if "error" in data:
