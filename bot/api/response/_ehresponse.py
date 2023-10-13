@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from typing import List, TypeAlias, TypedDict
 
 EH_ID: TypeAlias = str | int | None
 
-class Category(Enum):
+class EHCategory(Enum):
   DOUJINSHI = "Doujinshi"
   MANGA = "Manga"
   ARTIST_CG = "Artist CG"
@@ -28,23 +28,42 @@ class EHGallery:
   archiver_key: str
   title: str
   title_jpn: str
-  category: Category
+  category: EHCategory
   thumb: str
   uploader: str
-  posted: int
-  filecount: str | int
-  filesize: str | int
+  posted: InitVar[str]
+  added_on: int | None
+  filecount: InitVar[str]
+  file_count: int | None
+  filesize: int
   expunged: bool
-  rating: str | int
-  torrentcount: str | int
+  rating: InitVar[str]
+  rating_value: float | None
+  torrentcount: InitVar[str]
+  torrent_count: int | None
+  parent_gid_value: int | None
+  current_gid_value: int | None
+  first_gid_value: int | None
   torrents: List["Torrent"] = field(default_factory=list)
   tags: List[str] = field(default_factory=list)
-  parent_gid: EH_ID = None
-  parent_key : EH_ID = None
-  current_gid: EH_ID = None
-  current_key: EH_ID = None
-  first_gid: EH_ID = None
-  first_key: EH_ID = None
+  parent_key : str | None = None
+  current_key: str | None = None
+  first_key: str | None = None
+  parent_gid: InitVar[str | None] = None
+  current_gid: InitVar[str | None] = None
+  first_gid: InitVar[str | None] = None
+
+  def __post_init__(self, posted, filecount, rating, torrentcount, parent_gid, current_gid, first_gid):
+    self.added_on = int(posted)
+    self.file_count = int(filecount)
+    self.rating_value = float(rating)
+    self.torrent_count = int(torrentcount)
+    if parent_gid:
+      self.parent_gid_value = int(parent_gid)
+    if current_gid:
+      self.current_gid_value = int(current_gid)
+    if first_gid:
+      self.first_gid_value = int(first_gid)
 
 @dataclass
 class Torrent:
