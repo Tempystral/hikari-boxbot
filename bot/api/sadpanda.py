@@ -1,19 +1,17 @@
 import json
-from typing import Optional
+import logging
 
 from aiohttp import ClientSession
-from bot.api.response import EHGalleryResponse, TokenList
+from bot.api.response import EHCategory, EHGalleryResponse, TokenList
 from bot.utils.constants import RESTRICTED_TAGS
-from dacite import from_dict
-
-import logging
+from dacite import Config, from_dict
 
 logger = logging.getLogger("bot.api.sadpanda")
 
 class SadPandaApi:
   def __init__(self, session:ClientSession) -> None:
     self._request_url = 'https://api.e-hentai.org/api.php'
-    self._restricted_tags = RESTRICTED_TAGS
+    self.restricted_tags = RESTRICTED_TAGS
     self._session = session
   
   async def get_gallery(self, gallery_id:int, gallery_token:str):
@@ -23,7 +21,7 @@ class SadPandaApi:
       "namespace" : 1
     }
     data = await self._get(params, self._session)
-    gallery = from_dict(data_class=EHGalleryResponse, data=data)
+    gallery = from_dict(data_class=EHGalleryResponse, data=data, config=Config(cast=[EHCategory]))
     return gallery.gmetadata[0]
   
   async def find_original_gallery(self, gallery_id:int, page_token:str, page_num:int):
@@ -32,9 +30,9 @@ class SadPandaApi:
       "pagelist": [[gallery_id, page_token, page_num]]
     }
     data = await self._get(params, self._session)
-    return TokenList(**data)
+    return TokenList(**data["tokenlist"][0])
 
-  async def _get(self, params:dict, session:ClientSession) -> dict:
+  async def _get(self, params:dict, session:ClientSession):
     async with session.post(self._request_url, json=params, headers={'User-Agent': 'sauce/0.1'}) as response:
       text = await response.read()
       data = json.loads(text)
@@ -51,11 +49,6 @@ class SadPandaApi:
       return data["gmetadata"]["error"]
     else:
       return None
-    
-
-
-
-
 
 class EHentaiApiError(ValueError):
   def __init__(self, message):
