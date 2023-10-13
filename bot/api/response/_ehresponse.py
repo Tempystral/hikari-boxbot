@@ -32,18 +32,11 @@ class EHGallery:
   thumb: str
   uploader: str
   posted: InitVar[str]
-  added_on: int | None
   filecount: InitVar[str]
-  file_count: int | None
   filesize: int
   expunged: bool
   rating: InitVar[str]
-  rating_value: float | None
   torrentcount: InitVar[str]
-  torrent_count: int | None
-  parent_gid_value: int | None
-  current_gid_value: int | None
-  first_gid_value: int | None
   torrents: List["Torrent"] = field(default_factory=list)
   tags: List[str] = field(default_factory=list)
   parent_key : str | None = None
