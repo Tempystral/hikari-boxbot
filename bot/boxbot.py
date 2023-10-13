@@ -17,7 +17,7 @@ class BoxBot(BotApp):
                      banner="bot",
                      logs=log_level
                     )
-    loghelper.setup_logging(log_level)
+    loghelper.setup_logging(log_level, "./logs/boxbot.log")
 
   async def on_starting(self, event:hikari.Event) -> None:
     logger.info("Starting...")

@@ -1,14 +1,18 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 
-rotatingFileHandler = TimedRotatingFileHandler(filename="./logs/boxbot.log", when="midnight")
+def __create_log_dir(path:str):
+  logfile = Path(path)
+  logfile.parent.mkdir(parents=True, exist_ok=True)
+  logfile.touch()
 
-def getLogger(name:str) -> logging.Logger:
-  logger = logging.getLogger(name)
-  logger.addHandler(rotatingFileHandler)
-  return logger
+def setup_logging(level:str, logpath:str) -> None:
+  
+  __create_log_dir(logpath)
 
-def setup_logging(level:str) -> None:
+  rotatingFileHandler = TimedRotatingFileHandler(filename=logpath, when="midnight")
+
   root_logger = logging.getLogger()
   rotatingFileHandler.setFormatter(logging.Formatter("%(levelname)-1.1s %(asctime)23.23s %(name)s: %(message)s"))
   root_logger.addHandler(rotatingFileHandler)
