@@ -69,6 +69,7 @@ class Pixiv(Ladle):
       author_icon = await self.download(self._get_author_icon(details), session),
       author_url = f"https://www.pixiv.net/en/users/{details.illust.user.id}",
       color = Color(0x0096fa),
+      count = page_count,
       timestamp=details.illust.create_date
     )
     return response

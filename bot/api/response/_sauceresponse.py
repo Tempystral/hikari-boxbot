@@ -45,8 +45,10 @@ class SauceResponse():
   timestamp: datetime | int | float | str | None = None
 
   def __post_init__(self):
+    if not self.images:
+      self.images = []
     self.image = (self.image if self.image else (self.images[0] if self.images else None))
-    self.count = self.count or len(self.images) if self.images else "Unknown"
+    self.count = self.count or (len(self.images) if self.images else None) or "Unknown"
     self.timestamp = self.__init_timestamp(self.timestamp)
 
   def to_embeds(self) -> Optional[list[Embed]]:
