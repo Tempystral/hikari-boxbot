@@ -51,7 +51,7 @@ class SauceResponse():
     self.count = self.count or (len(self.images) if self.images else None) or "Unknown"
     self.timestamp = self.__init_timestamp(self.timestamp)
 
-  def to_embeds(self) -> Optional[list[Embed]]:
+  def to_embeds(self):
     '''
     Creates a discord embed from the response object containing all the response details. Also contains the first image in `images`, if any.
     '''

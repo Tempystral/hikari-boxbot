@@ -1,7 +1,6 @@
 import logging
 import re
 from io import BytesIO
-from typing import Tuple
 from aiohttp import ClientSession
 from hikari import Resourceish
 
@@ -13,13 +12,12 @@ def remove_spoilered_text(message:str) -> str:
   '''Quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
   strs = message.split('||')
   despoilered = ''.join(strs[::2]) # Get every 4th string
-  despoilered += strs[-1] if len(strs) % 2 == 0 else ''
   return despoilered
 
 def get_ladles(l_ladles:list[str]) -> list[bot.ladles.Ladle]:
   return [getattr(bot.ladles, name.strip())() for name in l_ladles]
 
-def compile_patterns(l_ladles:list[bot.ladles.Ladle]) -> list[Tuple[bot.ladles.Ladle, re.Pattern]]:
+def compile_patterns(l_ladles:list[bot.ladles.Ladle]):
   return [(ladle, re.compile(ladle.pattern)) for ladle in l_ladles]
 
 async def get_filesize(url:str, session: ClientSession):

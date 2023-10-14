@@ -14,7 +14,7 @@ class Ladle(ABC):
   pattern: str
 
   @abstractmethod
-  def extract(self, match:Match, session:ClientSession) -> SauceResponse:
+  async def extract(self, match:Match, session:ClientSession) -> SauceResponse:
     pass
 
   def findall(self, string:str) -> Iterable[Match]:

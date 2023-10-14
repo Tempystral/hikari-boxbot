@@ -27,18 +27,17 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   
   # Get a list of links from the message
   msg = sauce_utils.remove_spoilered_text(event.content)
-  #logger.debug(f"Message: {msg}")
+  logger.debug(f"Message: {msg}")
   links = _find_links(msg)
-  if links: logger.debug(f"Found the following links: {[m for _, m in links]}")
-
+  if links:
+    logger.debug(f"Found the following links: {[m for _, m in links]}")
   # If the regex finds a suitable match, send the link to one of the ladles to retrieve metadata
   for ladle, matched_link in links:
-    response:SauceResponse = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
+    response = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
     logger.debug(f"Extracted Data: {response}")
     
     # Once metadata is retrieved, send it off to the embed generator
-    embeds  = response.to_embeds()   if response else None
-    # images = response.get_images() if response else None
+    embeds = response.to_embeds() if response else None
 
     # Post the embed + suppress embeds on original message
     if embeds or response.text:
@@ -124,7 +123,8 @@ def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
 
 def _set_extractors(bot: lb.BotApp) -> None:
   l_extractors = config("EXTRACTORS", cast=str).split(",")
-  bot.d.extractors = sauce_utils.compile_patterns(sauce_utils.get_ladles(l_extractors))
+  l_ladles = sauce_utils.get_ladles(l_extractors)
+  bot.d.extractors = sauce_utils.compile_patterns(l_ladles)
 
 def _contains_embed(msg: hikari.Message):
   try:
