@@ -34,7 +34,9 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   # If the regex finds a suitable match, send the link to one of the ladles to retrieve metadata
   for ladle, matched_link in links:
     response = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
-    logger.debug(f"Extracted Data: {response}")
+    if not response:
+      return
+    logger.debug(f"Extracted Data: {response.__repr__()}")
     
     # Once metadata is retrieved, send it off to the embed generator
     embeds = response.to_embeds() if response else None

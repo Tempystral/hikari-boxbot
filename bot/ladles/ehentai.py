@@ -45,7 +45,7 @@ class EHentai(Ladle):
       title = unescape(gallery.title).replace("\n", " "),
       description = description,
       url = f"https://{prefix}hentai.org/g/{gallery.gid}/{gallery.token}/",
-      image = gallery.thumb,
+      images = [gallery.thumb],
       color = Color(0xedebdf),
       count = gallery.file_count,
       timestamp = gallery.added_on

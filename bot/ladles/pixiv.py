@@ -45,7 +45,6 @@ class Pixiv(Ladle):
       return
 
     images = None
-    image = None
     video = None
     page_count = details.illust.page_count
 
@@ -53,9 +52,9 @@ class Pixiv(Ladle):
       video = await self._process_ugoira_video(details.illust.id, api)
     else:
       if page_count == 1:
-        image = await self.download(details.illust.meta_single_page.original_image_url, session)
+        images = [ await self.download(details.illust.meta_single_page.original_image_url, session) ]
       else:
-        images = [await self.download(i.image_urls.original, session) for i in details.illust.meta_pages]
+        images = [ await self.download(i.image_urls.original, session) for i in details.illust.meta_pages ]
         logger.debug(images)
     
     response = SauceResponse(
@@ -63,7 +62,6 @@ class Pixiv(Ladle):
       description = strip_tags(details.illust.caption),
       url = 'https://www.pixiv.net/en/artworks/' + illust_id,
       images = images,
-      image = image,
       video = video,
       author_name = details.illust.user.name,
       author_icon = await self.download(self._get_author_icon(details), session),

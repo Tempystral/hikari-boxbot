@@ -9,7 +9,7 @@ from hikari.embeds import Embed
 
 logger = logging.getLogger("bot.api.response.SauceResponse")
 
-@dataclass
+@dataclass(slots=True)
 class SauceResponse():
   '''
   A response object containing all the contents required for an embed.
@@ -33,21 +33,17 @@ class SauceResponse():
   title : str | None = None
   description : str | None = None
   url : str | None = None
-  image : Resourceish | None = None
-  images : list[Resourceish] | None = field(default_factory=list)
   author_name : str | None = None
   author_url : str | None = None
   author_icon : str | None = None
-  color : str | None = None
+  images : list[Resourceish] | None = field(default_factory=list)
   count : int | None = None
   video : Resourceish | None = None
+  color : str | None = None
   text : str | None = None
   timestamp: datetime | int | float | str | None = None
 
   def __post_init__(self):
-    if not self.images:
-      self.images = []
-    self.image = (self.image if self.image else (self.images[0] if self.images else None))
     self.count = self.count or (len(self.images) if self.images else None) or "Unknown"
     self.timestamp = self.__init_timestamp(self.timestamp)
 
@@ -60,25 +56,14 @@ class SauceResponse():
     embed = (
       Embed(title = self.title, description=self.description, url=self.url, color=self.color, timestamp=self.timestamp)
       .set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
-      .set_image(self.image)
+      .set_image(self.images[0] if self.images else None)
     )
     if self.count:
       embed.add_field(name="Image Count", value=self.count)
       
     # Test at generating extra embeds from multiple images?
-    extra_embeds = [Embed(url=self.url).set_image(image) for image in self.images[1:]]
+    extra_embeds = [ Embed(url=self.url).set_image(image) for image in self.images[1:] ]
     return [embed, *extra_embeds]
-  
-  def get_images(self, limit:int = 3) -> list[Resourceish]:
-    '''
-    Returns a list of images from this response object, from the second element in `images` to the last, or up to some limit (inclusive).
-    '''
-    if not self.images:
-      return []
-    if len(self.images) >= limit + 1:
-      return self.images[1:limit+1]
-    else:
-      return self.images[1:]
   
   def __init_timestamp(self, ts: int | float | str | datetime):
     if isinstance(ts, int | float):
