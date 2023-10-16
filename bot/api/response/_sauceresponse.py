@@ -1,11 +1,11 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone, tzinfo
+
 import logging
-from typing import Any, Optional
-from hikari.files import Resourceish
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 
 from hikari.embeds import Embed
+from hikari.files import Resourceish
 
 logger = logging.getLogger("bot.api.response.SauceResponse")
 
@@ -44,7 +44,8 @@ class SauceResponse():
   timestamp: datetime | int | float | str | None = None
 
   def __post_init__(self):
-    self.count = self.count or (len(self.images) if self.images else None) or "Unknown"
+    if self.count is None:
+      self.count = len(self.images) if self.images else 0
     self.timestamp = self.__init_timestamp(self.timestamp)
 
   def to_embeds(self):
@@ -57,9 +58,10 @@ class SauceResponse():
       Embed(title = self.title, description=self.description, url=self.url, color=self.color, timestamp=self.timestamp)
       .set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
       .set_image(self.images[0] if self.images else None)
+      .set_footer("via Boxbot")
     )
-    if self.count:
-      embed.add_field(name="Image Count", value=self.count)
+    if not self.count == 0:
+      embed.add_field(name="Image Count", value=self.count, inline=True)
       
     # Test at generating extra embeds from multiple images?
     extra_embeds = [ Embed(url=self.url).set_image(image) for image in self.images[1:] ]
