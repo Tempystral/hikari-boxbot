@@ -2,13 +2,13 @@ import logging
 import hikari
 from aiohttp import ClientSession
 from lightbulb import BotApp
-from bot.utils import loghelper
+from bot.utils import bot_utils, loghelper
 from decouple import config
 
 logger = logging.getLogger("BoxBot")
 
 class BoxBot(BotApp):
-  def __init__(self, token:str, guilds:str, log_level:str = "DEBUG"):
+  def __init__(self, token:str, guilds:int, log_level:str = "DEBUG"):
     self.token = token
     self.guilds = guilds
     super().__init__(token=self.token,
@@ -24,6 +24,7 @@ class BoxBot(BotApp):
     logger.info("Starting...")
     self.d.aio_session = ClientSession()
     self.d.test_channel = config("TEST_CHANNEL", cast=int)
+    self.d.emojis = await bot_utils.get_emoji(self, [self.guilds])
   
   async def on_started(self, event:hikari.Event) -> None:
     logger.info(f"Logged in as:\n\t{self.user}\nwith ID:\n\t{self.user.id}")

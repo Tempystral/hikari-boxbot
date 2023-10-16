@@ -61,7 +61,7 @@ def _find_links(message:str) -> list[tuple[Ladle, Match]]:
 
 async def _add_random_footer_icon(guild: hikari.SnowflakeishOr[hikari.PartialGuild], embed: hikari.Embed):
   if embed.footer:
-    emojis = await sauce_plugin.bot.rest.fetch_guild_emojis(guild)
+    emojis = __datastore().emojis[int(guild)]
     emoji = random.choice([e for e in emojis if not e.is_animated])
     embed.set_footer(embed.footer.text, icon=emoji)
   
