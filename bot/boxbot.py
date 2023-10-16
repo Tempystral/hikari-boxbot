@@ -3,6 +3,7 @@ import hikari
 from aiohttp import ClientSession
 from lightbulb import BotApp
 from bot.utils import loghelper
+from decouple import config
 
 logger = logging.getLogger("BoxBot")
 
@@ -22,6 +23,7 @@ class BoxBot(BotApp):
   async def on_starting(self, event:hikari.Event) -> None:
     logger.info("Starting...")
     self.d.aio_session = ClientSession()
+    self.d.test_channel = config("TEST_CHANNEL", cast=int)
   
   async def on_started(self, event:hikari.Event) -> None:
     logger.info(f"Logged in as:\n\t{self.user}\nwith ID:\n\t{self.user.id}")

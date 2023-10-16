@@ -14,14 +14,8 @@ sauce_plugin = lb.Plugin("Sauce")
 
 @sauce_plugin.listener(hikari.GuildMessageCreateEvent)
 async def sauce(event: hikari.GuildMessageCreateEvent):
-  if (not event.content) or event.author.is_bot:
+  if _do_not_sauce(event):
     return
-  
-  if sauce_plugin.bot.d.testmode:
-    if event.channel_id == config("TEST_CHANNEL", cast=int):
-      pass
-    else:
-      return
   
   # Get a list of links from the message
   msg = sauce_utils.remove_spoilered_text(event.content)
@@ -36,6 +30,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     
     # Once metadata is retrieved, send it off to the embed generator
     embeds = response.to_embeds() if response else None
+    await _add_random_footer_icon(event.guild_id, embeds[0])
 
     # Post the embed + suppress embeds on original message
     if embeds or response.text:
@@ -63,6 +58,23 @@ def _find_links(message:str) -> list[tuple[Ladle, Match]]:
   if links:
     logger.debug(f"Found the following links: {[m for _, m in links]}")
   return links
+
+async def _add_random_footer_icon(guild: hikari.SnowflakeishOr[hikari.PartialGuild], embed: hikari.Embed):
+  if embed.footer:
+    emojis = await sauce_plugin.bot.rest.fetch_guild_emojis(guild)
+    emoji = random.choice([e for e in emojis if not e.is_animated])
+    embed.set_footer(embed.footer.text, icon=emoji)
+  
+def _do_not_sauce(event: hikari.Event):
+  if (not event.content) or event.author.is_bot:
+    return True
+  if __datastore().testmode:
+    if not event.channel_id == __datastore().test_channel:
+      return True
+  return False
+
+def __datastore():
+  return sauce_plugin.bot.d
 
 def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
     return bot.d.extractors
