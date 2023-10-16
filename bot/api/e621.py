@@ -1,13 +1,15 @@
+import asyncio
 import json
 import logging
-from aiohttp import BasicAuth, ClientSession
+from collections import deque
+from time import time
+
 import dacite
+from aiohttp import BasicAuth, ClientSession
 from decouple import config
 
-import asyncio
-
-from .exception import LadleException
-from .response import eSixPoolResponse, eSixPostResponse
+from bot.api.exception import LadleException
+from bot.api.response import eSixPoolResponse, eSixPostResponse
 
 logger = logging.getLogger("bot.api.e621")
 
@@ -18,9 +20,8 @@ class ESixApi:
       config("E621_KEY", cast=str)
     )
     self._base_url = 'https://e621.net'
-    self._request_count = 0
-    self.sleep_timer = 0
     self._session = session
+    self._prev_requests: deque[float] = deque(maxlen=2)
 
   @property
   def session(self):
@@ -31,7 +32,8 @@ class ESixApi:
     self._session = session
 
   async def __get(self, url: str, params: dict = {}) -> dict:
-    await asyncio.sleep(self.sleep_timer)
+    await self.__dyn_rate_limit(time())
+
     req_url = self._base_url + url
     async with self.session.get(req_url, params=params, headers={'User-Agent': 'Sauce/2.0'}, auth=self._auth) as response:
       try:
@@ -42,8 +44,7 @@ class ESixApi:
       if result.get("success"):
         response_code = result["code"] if "code" in result else -1
         raise EsixApiException(code=response_code, reason=result["reason"], data=result)
-
-    self.sleep_timer = 0.5
+    
     return result
   
   async def get_pool(self, id: int) -> eSixPoolResponse:
@@ -60,6 +61,19 @@ class ESixApi:
     response = await self.__get(f'/posts.json', params=params)
     return [dacite.from_dict(data_class=eSixPostResponse, data=post) for post in response["posts"]]
 
+  def __count_request(self, t: float):
+    self._prev_requests.appendleft(t)
+  
+  def __check_time(self, t: float):
+    if len(self._prev_requests) < 1:
+      return self._prev_requests[1] - t < 1, self._prev_requests[1]
+    return False, 1.
+
+  async def __dyn_rate_limit(self, t: float):
+    must_wait, delta = self.__check_time(t)
+    if must_wait:
+      await asyncio.sleep(1 - delta)
+    self.__count_request(t)
 
 class EsixApiException(LadleException):
   """
