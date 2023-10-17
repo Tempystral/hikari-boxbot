@@ -2,7 +2,7 @@ import logging
 import re
 from io import BytesIO
 from aiohttp import ClientSession
-from hikari import Resourceish
+from hikari import Resourceish, Message
 
 import bot.ladles
 
@@ -19,6 +19,15 @@ def get_ladles(l_ladles:list[str]) -> list[bot.ladles.Ladle]:
 
 def compile_patterns(l_ladles:list[bot.ladles.Ladle]):
   return [(ladle, re.compile(ladle.pattern)) for ladle in l_ladles]
+
+def contains_embed(msg: Message):
+  try:
+    if msg.embeds and (msg.embeds[0].title or msg.embeds[0].color or msg.embeds[0].timestamp):
+      # Raw images get inserted as embeds without a title, color, or timestamp
+      return True
+  except IndexError or ValueError or AttributeError as e:
+    return False
+  return False
 
 async def get_filesize(url:str, session: ClientSession):
   """
