@@ -1,14 +1,16 @@
 import logging
+
 import hikari
 from aiohttp import ClientSession
-from lightbulb import BotApp
-from bot.utils import bot_utils, loghelper
 from decouple import config
+from lightbulb import BotApp
+
+from bot.utils import bot_utils, loghelper
 
 logger = logging.getLogger("BoxBot")
 
 class BoxBot(BotApp):
-  def __init__(self, token:str, guilds:int, log_level:str = "DEBUG"):
+  def __init__(self, token:str, *guilds:int, log_level:str = "DEBUG"):
     self.token = token
     self.guilds = guilds
     super().__init__(token=self.token,
@@ -24,20 +26,24 @@ class BoxBot(BotApp):
     logger.info("Starting...")
     self.d.aio_session = ClientSession()
     self.d.test_channel = config("TEST_CHANNEL", cast=int)
-    self.d.emojis = await bot_utils.get_emoji(self, [self.guilds])
+    self.d.emojis = await bot_utils.get_emoji(self, self.guilds)
   
-  async def on_started(self, event:hikari.Event) -> None:
-    logger.info(f"Logged in as:\n\t{self.user}\nwith ID:\n\t{self.user.id}")
-    logger.info("Logged into guilds:\n\t{guilds}".format(guilds="\n\t".join((f"{s.name}:{s.id}" for s in self.guilds))))
+  async def on_started(self, event:hikari.StartedEvent) -> None:
+    user = self.get_me()
+    guilds = "\n\t".join([f"{g.name} [{g.id}]" async for g in self.rest.fetch_my_guilds()])
+    if user:
+      logger.info(f"Logged in as: {user} with ID: {user.id}")
+    logger.info(f"Logged into guilds:\n\t{guilds}")
 
   async def on_stopping(self, event:hikari.Event) -> None:
     logger.info("Shutting down...")
     await self.d.aio_session.close()
 
-def create(token:str, guild_id:str, log_level:str) -> BoxBot:
-  bot = BoxBot(token, guild_id, log_level) # init
+def create(token:str, guild_id:int, log_level:str) -> BoxBot:
+  bot = BoxBot(token, guild_id, log_level=log_level) # init
   # Listen for system events
   bot.subscribe(hikari.StartingEvent, bot.on_starting)
+  bot.subscribe(hikari.StartedEvent, bot.on_started)
   bot.subscribe(hikari.StoppingEvent, bot.on_stopping)
   # Load extensions
   bot.load_extensions_from("./bot/modules/", must_exist=False)
