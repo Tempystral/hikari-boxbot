@@ -1,8 +1,10 @@
 import asyncio
 from logging import getLogger
-from decouple import config
+
 import lightbulb
+from decouple import config
 from lightbulb.ext import tasks
+
 from bot.utils import BoardWatcher
 from bot.utils.fourchanaio import Chan, Post
 

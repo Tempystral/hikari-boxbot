@@ -2,9 +2,10 @@
 
 import asyncio
 import os
+
 from decouple import config
 
-from . import create
+from bot import create
 
 if __name__ == "__main__":
 	if os.name != "nt":

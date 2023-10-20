@@ -2,6 +2,7 @@ import json
 import re
 from logging import getLogger
 from typing import Tuple
+
 from aiohttp import ClientError
 
 from bot.utils.fourchanaio import Chan, Post

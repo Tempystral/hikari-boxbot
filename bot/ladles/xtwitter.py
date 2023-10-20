@@ -5,9 +5,9 @@ from re import Match
 import aiohttp
 from dacite import from_dict
 from hikari import Color
-from bot.api.response import FXTwitterResponse, SauceResponse, Tweet
 
-from . import Ladle
+from bot.api.response import FXTwitterResponse, SauceResponse, Tweet
+from bot.ladles import Ladle
 
 logger = getLogger("ladles.xtwitter")
 

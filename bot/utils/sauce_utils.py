@@ -1,8 +1,9 @@
 import logging
 import re
 from io import BytesIO
+
 from aiohttp import ClientSession
-from hikari import Resourceish, Message
+from hikari import Message, Resourceish
 
 import bot.ladles
 

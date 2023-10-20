@@ -1,5 +1,5 @@
-from io import StringIO
 from html.parser import HTMLParser
+from io import StringIO
 
 '''
 Sourced from https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python

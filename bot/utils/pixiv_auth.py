@@ -7,16 +7,16 @@ I'm not great with web APIs and Pixiv's is particularly inscrutable.
 Small modifications made to suit this project's needs.
 '''
 
+import os
 from argparse import ArgumentParser
 from base64 import urlsafe_b64encode
 from hashlib import sha256
-import os
 from pprint import pprint
 from secrets import token_urlsafe
 from sys import exit
 from urllib.parse import urlencode
 from webbrowser import open as open_url
-from decouple import config
+
 import requests
 
 # Latest app version can be found using GET /v1/application-info/android

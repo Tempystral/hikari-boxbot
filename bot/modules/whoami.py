@@ -1,5 +1,5 @@
-from hikari import Embed
 import lightbulb as lb
+from hikari import Embed
 
 whoami_plugin = lb.Plugin(name="Whoami")
 

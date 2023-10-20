@@ -4,9 +4,10 @@ from re import Match, Pattern
 
 import hikari
 import lightbulb as lb
+from decouple import config
+
 from bot.ladles import Ladle
 from bot.utils import sauce_utils
-from decouple import config
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 

@@ -1,14 +1,14 @@
+import html
+from logging import getLogger
 from re import Match
-from hikari import Color
-from tweepy import Client, User, Media, Tweet, OAuth2BearerHandler, API
+
 import aiohttp
 from decouple import config
+from hikari import Color
+from tweepy import API, Client, Media, OAuth2BearerHandler, Tweet, User
+
 from bot.api.response import SauceResponse
-import html
-
-from . import Ladle
-
-from logging import getLogger
+from bot.ladles import Ladle
 
 logger = getLogger("ladles.twitter")
 

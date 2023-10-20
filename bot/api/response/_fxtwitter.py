@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Optional
+
 
 @dataclass
 class FXTwitterResponse:

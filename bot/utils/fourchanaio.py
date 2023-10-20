@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from itertools import chain
 from logging import getLogger
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
 from html2text import html2text

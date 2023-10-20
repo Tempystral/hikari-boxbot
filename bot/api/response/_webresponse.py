@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Literal, TypedDict, List
+from typing import Dict, List, Literal, TypedDict
 from urllib.parse import urlencode
 
 import bbcode
+
 from bot.utils.mlstripper import strip_tags
 
 

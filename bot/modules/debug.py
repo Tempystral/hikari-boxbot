@@ -1,6 +1,6 @@
 import lightbulb
-from hikari import MessageFlag
 from decouple import config
+from hikari import MessageFlag
 
 debug_plugin = lightbulb.Plugin("Debug")
 

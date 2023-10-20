@@ -2,9 +2,10 @@ import json
 import logging
 
 from aiohttp import ClientSession
+from dacite import Config, from_dict
+
 from bot.api.response import EHCategory, EHGalleryResponse, TokenList
 from bot.utils.constants import RESTRICTED_TAGS
-from dacite import Config, from_dict
 
 logger = logging.getLogger("bot.api.sadpanda")
 

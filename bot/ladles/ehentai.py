@@ -1,18 +1,16 @@
-import json
 import logging
 import re
 from html import unescape
 from re import Match
-from typing import Optional, Tuple
+from typing import Optional
 
 from aiohttp import ClientSession
+from hikari import Color
+
 from bot.api.response import EHGallery, SauceResponse, TokenList
 from bot.api.sadpanda import SadPandaApi
-from bot.utils.constants import EHENTAI_DESC, RESTRICTED_TAGS
-from hikari import Color
-from scalpl import Cut
-
-from . import Ladle
+from bot.ladles import Ladle
+from bot.utils.constants import EHENTAI_DESC
 
 logger = logging.getLogger("ladles.ehentai")
 

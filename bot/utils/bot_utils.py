@@ -1,8 +1,9 @@
-from asyncio import TaskGroup
 import asyncio
-from typing import Sequence, TypedDict
+from typing import Sequence
+
 import hikari
 import lightbulb
+
 
 async def get_emoji(bot: lightbulb.BotApp, guilds: Sequence[hikari.Snowflakeish]):
   coros = [ bot.rest.fetch_guild_emojis(guild) for guild in guilds ]
