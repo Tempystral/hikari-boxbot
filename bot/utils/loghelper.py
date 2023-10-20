@@ -12,7 +12,7 @@ def setup_logging(level:str, logpath:str) -> None:
   
   __create_log_dir(logpath)
 
-  rotatingFileHandler = TimedRotatingFileHandler(filename=logpath, when="midnight")
+  rotatingFileHandler = TimedRotatingFileHandler(filename=logpath, when="midnight", backupCount=30)
 
   root_logger = logging.getLogger()
   rotatingFileHandler.setFormatter(logging.Formatter("%(levelname)-1.1s %(asctime)23.23s %(name)s: %(message)s"))
