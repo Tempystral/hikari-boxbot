@@ -19,5 +19,5 @@ def setup_logging(level:str, logpath:str) -> None:
   root_logger.addHandler(rotatingFileHandler)
   root_logger.setLevel(level)
   
-  logging.getLogger("hikari.gateway").setLevel(logging.WARN)
+  logging.getLogger("hikari.gateway").setLevel(logging.ERROR)
   logging.getLogger("hikari.ratelimits").setLevel(logging.INFO)
