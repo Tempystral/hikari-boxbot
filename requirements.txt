@@ -5,7 +5,6 @@ hikari>=2.0.0.dev121
 hikari-lightbulb>=2.3.1
 python-decouple>=3.7
 uvloop>= 0.16; sys_platform != "win32"
-tweepy[async]>=4.12.1
 scalpl>=0.4.2
 html2text>=2020.1.16
 bs4>=0.0.1

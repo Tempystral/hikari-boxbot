@@ -27,7 +27,7 @@ class eSixResponse(WebResponse):
     parser.replace_cosmetic = True
     parsed_text = parser.format(text)
 
-    tag = re.compile("(\[\[(.*?)?\]\])")
+    tag = re.compile(r'(\[\[(.*?)?\]\])')
     for match in tag.findall(parsed_text):
       parsed_text = parsed_text.replace(match[0], f'[{match[1]}](https://e621.net/wiki_pages/show_or_new?{urlencode({"title": match[1]})})')
     

@@ -2,11 +2,9 @@ import asyncio
 from logging import getLogger
 
 import lightbulb
-from decouple import config
-from lightbulb.ext import tasks
 
 from bot.utils import BoardWatcher
-from bot.utils.fourchanaio import Chan, Post
+from bot.utils.fourchanaio import Post
 
 logger = getLogger("Boxbot.modules.watcher")
 
@@ -14,7 +12,7 @@ plugin = lightbulb.Plugin("Watcher")
 
 watcher:BoardWatcher = None
 
-@tasks.task(m=5)
+# @tasks.task(m=5)
 async def check_threads():
   threads = await get_new_threads()
   if threads:
@@ -34,12 +32,12 @@ async def get_new_threads() -> list[Post]:
   return threads
 
 def load(bot: lightbulb.BotApp) -> None:
-  global watcher
-  watcher = BoardWatcher(chan = Chan(session = bot.d.aio_session),
-                         search_patterns = config("WATCHER_PATTERN"),
-                         regex = config("WATCHER_REGEX"))
-  bot.d.notify_channel = config("WATCHER_NOTIFY_CHANNEL", cast=int)
-  bot.d.notify_role = config("WATCHER_NOTIFY_ROLE", cast=int)
+  # global watcher
+  # watcher = BoardWatcher(chan = Chan(session = bot.d.aio_session),
+  #                        search_patterns = config("WATCHER_PATTERN"),
+  #                        regex = config("WATCHER_REGEX"))
+  # bot.d.notify_channel = config("WATCHER_NOTIFY_CHANNEL", cast=int)
+  # bot.d.notify_role = config("WATCHER_NOTIFY_ROLE", cast=int)
   bot.add_plugin(plugin)
 
 def unload(bot: lightbulb.BotApp) -> None:
