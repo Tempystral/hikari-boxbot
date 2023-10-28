@@ -56,7 +56,7 @@ class Pixiv(Ladle):
       if page_count == 1:
         images = [ await self.download(details.illust.meta_single_page.original_image_url, session) ]
       else:
-        images = [ await self.download(i.image_urls.original, session) for i in details.illust.meta_pages ]
+        images = [ await self.download(i.image_urls.original, session) for i in details.illust.meta_pages[:4] ]
         logger.debug(images)
     
     response = SauceResponse(

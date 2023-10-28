@@ -58,7 +58,7 @@ class XTwitter(Ladle):
     videos = []
     if tweet.media:
       if tweet.media.photos:
-        photos = [p.url for p in (tweet.media.photos or [])]
+        photos = [p.url for p in (tweet.media.photos[:4] or [])]
       if tweet.media.videos:
         videos = [v.url for v in (tweet.media.videos or [])]
     return photos, videos
