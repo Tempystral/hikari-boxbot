@@ -61,7 +61,7 @@ class InkBunny(Ladle):
           title = submission.get("title"),
           description=strip_tags(submission.get("description_bbcode_parsed")),
           url=match[0],
-          images = [f.get("file_url_full") for f in submission.get("files")],
+          images = [f.get("file_url_full") for f in submission.get("files")[:4]],
           author_name = submission.get("username"),
           author_icon = submission.get("user_icon_url_small") or r'https://qc.ib.metapix.net/images78/usericons/large/noicon.png',
           author_url = f"https://www.inkbunny.net/{submission.get('username')}",

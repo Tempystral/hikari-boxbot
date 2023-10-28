@@ -23,18 +23,20 @@ _REQUESTS_KWARGS = {'verify': False}
 
 class Pixiv(Ladle):
   def __init__(self):
+    self._api: AppPixivAPI | None = None
     self.illust_pattern = r'https?://www\.pixiv\.net/[a-z]+/artworks/(?P<id1>\d+)'
     self.direct_pattern = r'https?://i\.pximg\.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
     self.pattern = self.direct_pattern + '|' + self.illust_pattern
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
-    api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
-    await api.login(refresh_token=refresh(config("PIXIV_REFRESH_TOKEN")))
+    if not self._api:
+      self._api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
+      await self._api.login(refresh_token=refresh(config("PIXIV_REFRESH_TOKEN")))
 
     if match.group("id1"):
-      return await self.extract_illust(match.group("id1"), api, session)
+      return await self.extract_illust(match.group("id1"), self._api, session)
     else:
-      return await self.extract_illust(match.group('id2'), api, session)
+      return await self.extract_illust(match.group('id2'), self._api, session)
 
   async def extract_illust(self, id:int, api:AppPixivAPI, session: ClientSession) -> SauceResponse:
     illust_id = id

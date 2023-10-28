@@ -65,7 +65,7 @@ class ESixApi:
     self._prev_requests.appendleft(t)
   
   def __check_time(self, t: float):
-    if len(self._prev_requests) < 1:
+    if len(self._prev_requests) > 1:
       return self._prev_requests[1] - t < 1, self._prev_requests[1]
     return False, 1.
 
