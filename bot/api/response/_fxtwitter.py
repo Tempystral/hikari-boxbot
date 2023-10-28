@@ -2,13 +2,13 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 
-@dataclass
+@dataclass(slots=True)
 class FXTwitterResponse:
   code: int
   message: str
   tweet: "Tweet"
 
-@dataclass
+@dataclass(slots=True)
 class Tweet:
   id: str
   url: str
@@ -33,7 +33,7 @@ class Tweet:
   poll: Optional["Poll"]
   translation: Optional["TweetTranslation"]
 
-@dataclass
+@dataclass(slots=True)
 class Author:
   id: str
   name: str
@@ -51,12 +51,12 @@ class Author:
   likes: int
   website: Optional["Website"]
 
-@dataclass
+@dataclass(slots=True)
 class Website:
   url: str
   display_url: str
 
-@dataclass
+@dataclass(slots=True)
 class Quote:
   url: str
   id: str
@@ -78,14 +78,14 @@ class Quote:
   media: "Media"
   source: str
 
-@dataclass
+@dataclass(slots=True)
 class Poll:
   choices: List[Dict]
   total_votes: int
   ends_at: str
   time_left_en: str
 
-@dataclass
+@dataclass(slots=True)
 class AllMediaEntity:
   type: str
   url: str
@@ -96,7 +96,7 @@ class AllMediaEntity:
   format: str | None = None
   thumbnail_url: str | None = None
 
-@dataclass
+@dataclass(slots=True)
 class Photo:
   type: str
   url: str
@@ -104,7 +104,7 @@ class Photo:
   height: int
   altText: str
 
-@dataclass
+@dataclass(slots=True)
 class Video:
   type: str
   url: str
@@ -114,20 +114,20 @@ class Video:
   duration: float
   format: str
 
-@dataclass
+@dataclass(slots=True)
 class MosaicFormats:
   ''' Provides urls for both jpeg and
   webp formats for the fxtwitter media mosaic.'''
   jpeg: str
   webp: str
 
-@dataclass
+@dataclass(slots=True)
 class Mosaic:
   '''Provides the data for a media mosaic'''
   type: str
   formats: MosaicFormats
 
-@dataclass
+@dataclass(slots=True)
 class Media:
   '''Provides data for a media object'''
   mosaic: Mosaic | None
@@ -136,7 +136,7 @@ class Media:
   photos: list[Photo] | None = field(default_factory=list)
   videos: list[Video] | None = field(default_factory=list)
 
-@dataclass
+@dataclass(slots=True)
 class TweetTranslation:
   text: str
   source_lang: str

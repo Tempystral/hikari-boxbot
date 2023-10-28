@@ -17,11 +17,11 @@ class EHCategory(Enum):
   MISC = "Misc"
   PRIVATE = "Private"
 
-@dataclass
+@dataclass(slots=True)
 class EHGalleryResponse:
   gmetadata: List["EHGallery"] = field(default_factory=list)
 
-@dataclass
+@dataclass(slots=True)
 class EHGallery:
   gid: int
   token: str
@@ -58,7 +58,7 @@ class EHGallery:
     if first_gid:
       self.first_gid_value = int(first_gid)
 
-@dataclass
+@dataclass(slots=True)
 class Torrent:
   hash: str
   added: str

@@ -33,7 +33,7 @@ class eSixResponse(WebResponse):
     
     return parsed_text
 
-@dataclass()
+@dataclass(slots=True)
 class eSixPoolResponse(eSixResponse):
   id: int
   name: str
@@ -52,7 +52,7 @@ class eSixPoolResponse(eSixResponse):
     self.created_at = self.parseTimestamp(self.created_at)
     self.updated_at = self.parseTimestamp(self.updated_at)
 
-@dataclass()
+@dataclass(slots=True)
 class eSixPostResponse(eSixResponse):
   # TODO Replace these dict unions with just the type whenever dacite supports TypedDict directly
   id: int
@@ -84,7 +84,7 @@ class eSixPostResponse(eSixResponse):
     self.created_at = self.parseTimestamp(self.created_at)
     self.updated_at = self.parseTimestamp(self.updated_at)
 
-@dataclass
+@dataclass(slots=True)
 class ESixFile():
   width: int
   height: int
