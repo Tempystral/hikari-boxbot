@@ -23,13 +23,13 @@ class Tweet:
   possibly_sensitive: bool | None
   is_note_tweet: bool
   lang: str
-  source: str
+  source: str | None
   replying_to: str | None
   replying_to_status: str | None
   color: str | None
   twitter_card: str
   media: Optional["Media"]
-  quote: Optional["Quote"]
+  quote: Optional["Tweet"]
   poll: Optional["Poll"]
   translation: Optional["TweetTranslation"]
 
@@ -55,28 +55,6 @@ class Author:
 class Website:
   url: str
   display_url: str
-
-@dataclass(slots=True)
-class Quote:
-  url: str
-  id: str
-  text: str
-  author: Author
-  replies: int
-  retweets: int
-  likes: int
-  color: str | None
-  twitter_card: str
-  created_at: str
-  created_timestamp: int
-  possibly_sensitive: bool | None
-  views: int
-  is_note_tweet: bool
-  lang: str
-  replying_to: str | None
-  replying_to_status: str | None
-  media: "Media"
-  source: str
 
 @dataclass(slots=True)
 class Poll:
