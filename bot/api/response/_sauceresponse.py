@@ -42,6 +42,7 @@ class SauceResponse():
   color : str | None = None
   text : str | None = None
   timestamp: datetime | int | float | str | None = None
+  via : str | None = "Boxbot"
 
   def __post_init__(self):
     if self.count is None:
@@ -58,7 +59,7 @@ class SauceResponse():
       Embed(title = self.title, description=self.description, url=self.url, color=self.color, timestamp=self.timestamp)
       .set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)
       .set_image(self.images[0] if self.images else None)
-      .set_footer("via Boxbot")
+      .set_footer(f"via {self.via}")
     )
     if not self.count == 0:
       embed.add_field(name="Image Count", value=self.count, inline=True)

@@ -1,4 +1,4 @@
-from ._sauceresponse import SauceResponse
-from ._webresponse import eSixPoolResponse, eSixPostResponse
-from ._fxtwitter import FXTwitterResponse, Tweet
-from ._ehresponse import EHGalleryResponse, EHGallery, TokenList, EHCategory
+from bot.api.response._ehresponse import (EHCategory, EHGallery,
+                                          EHGalleryResponse, TokenList)
+from bot.api.response._sauceresponse import SauceResponse
+from bot.api.response._webresponse import eSixPoolResponse, eSixPostResponse
