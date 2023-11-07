@@ -45,8 +45,8 @@ class EHentai(Ladle):
       url = f"https://{prefix}hentai.org/g/{gallery.gid}/{gallery.token}/",
       images = [gallery.thumb],
       color = Color(0xedebdf),
-      count = gallery.file_count,
-      timestamp = gallery.added_on
+      count = int(gallery.filecount),
+      timestamp = int(gallery.posted)
     )
 
   async def _resolve_params(self,

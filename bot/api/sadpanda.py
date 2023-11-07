@@ -22,7 +22,10 @@ class SadPandaApi:
       "namespace" : 1
     }
     data = await self._get(params, self._session)
-    gallery = from_dict(data_class=EHGalleryResponse, data=data, config=Config(cast=[EHCategory]))
+    gallery = from_dict(
+      data_class=EHGalleryResponse,
+      data=data,
+      config=Config(cast=[EHCategory], forward_references={"posted": int, "filecount": int, "rating": float, "torrentcount": int}))
     return gallery.gmetadata[0]
   
   async def find_original_gallery(self, gallery_id:int, page_token:str, page_num:int):

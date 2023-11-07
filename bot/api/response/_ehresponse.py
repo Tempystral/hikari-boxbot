@@ -31,32 +31,20 @@ class EHGallery:
   category: EHCategory
   thumb: str
   uploader: str
-  posted: InitVar[str]
-  filecount: InitVar[str]
+  posted: str
+  filecount: str
   filesize: int
   expunged: bool
-  rating: InitVar[str]
-  torrentcount: InitVar[str]
+  rating: str
+  torrentcount: str
   torrents: List["Torrent"] = field(default_factory=list)
   tags: List[str] = field(default_factory=list)
   parent_key : str | None = None
   current_key: str | None = None
   first_key: str | None = None
-  parent_gid: InitVar[str | None] = None
-  current_gid: InitVar[str | None] = None
-  first_gid: InitVar[str | None] = None
-
-  def __post_init__(self, posted, filecount, rating, torrentcount, parent_gid, current_gid, first_gid):
-    self.added_on = int(posted)
-    self.file_count = int(filecount)
-    self.rating_value = float(rating)
-    self.torrent_count = int(torrentcount)
-    if parent_gid:
-      self.parent_gid_value = int(parent_gid)
-    if current_gid:
-      self.current_gid_value = int(current_gid)
-    if first_gid:
-      self.first_gid_value = int(first_gid)
+  parent_gid: str | None = None
+  current_gid: str | None = None
+  first_gid: str | None = None
 
 @dataclass(slots=True)
 class Torrent:
