@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from io import BytesIO
 from os.path import abspath
@@ -8,7 +9,7 @@ from shutil import rmtree
 from aiohttp import ClientSession
 from decouple import config
 from hikari import Color
-from pixivpy_async import AppPixivAPI
+from pixivpy_async import AppPixivAPI, PixivClient
 from pixivpy_async.utils import JsonDict
 
 from bot.api.response import SauceResponse
@@ -29,9 +30,8 @@ class Pixiv(Ladle):
     self.pattern = self.direct_pattern + '|' + self.illust_pattern
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
-    if not self._api:
-      self._api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
-      await self._api.login(refresh_token=refresh(config("PIXIV_REFRESH_TOKEN")))
+    self._api = AppPixivAPI(proxy="socks5://127.0.0.1:8080", client=session)
+    await self._api.login(refresh_token=refresh(config("PIXIV_REFRESH_TOKEN")))
 
     if match.group("id1"):
       return await self.extract_illust(match.group("id1"), self._api, session)
@@ -56,7 +56,8 @@ class Pixiv(Ladle):
       if page_count == 1:
         images = [ await self.download(details.illust.meta_single_page.original_image_url, session) ]
       else:
-        images = [ await self.download(i.image_urls.original, session) for i in details.illust.meta_pages[:4] ]
+        tasks = [ self.download(i.image_urls.original, session) for i in details.illust.meta_pages[:4] ]
+        images = await asyncio.gather(*tasks)
         logger.debug(images)
     
     response = SauceResponse(
