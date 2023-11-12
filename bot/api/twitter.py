@@ -8,7 +8,7 @@ from bot.api.exception import LadleException
 from bot.api.response.twitter import (FXTwitterResponse, Tweet,
                                       VXTwitterResponse)
 
-logger = logging.getLogger("bot.api.e621")
+logger = logging.getLogger("bot.api.twitter")
 
 class TwitterAPI:
   def __init__(self, session:ClientSession|None = None):
@@ -24,17 +24,21 @@ class TwitterAPI:
 
   async def __get(self, client:str, user:str, id:str):
     response = await self._session.get(f"https://api.{client}twitter.com/{user}/status/{id}/")
+    # logger.warning(f"{response.status} - {await response.text()}")
     if response.status != 200:
       raise StatusException
     return json.loads(await response.text())
 
   async def __get_fx(self, user:str, id:str):
-    data = await self.__get("fx", user, id)
-    response = dacite.from_dict(data_class=FXTwitterResponse, data=data)
-    if (response.code != 200):
+    try:
+      data = await self.__get("fx", user, id)
+      response = dacite.from_dict(data_class=FXTwitterResponse, data=data)
+      if (response.code != 200):
+        raise FXTwitterException
+      else:
+        return response
+    except StatusException:
       raise FXTwitterException
-    else:
-      return response
   
   async def __get_vx(self, user:str, id:str):
     try:
