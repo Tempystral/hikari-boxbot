@@ -31,7 +31,7 @@ class XTwitter(Ladle):
     response = SauceResponse(
       title = tweet.title,
       description = tweet.description,
-      url = match.string,
+      url = match.group(),
       author_name = f"{tweet.author.display_name} (@{tweet.author.username})",
       author_url = tweet.author.url,
       author_icon = tweet.author.avatar_url,

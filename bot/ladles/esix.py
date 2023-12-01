@@ -31,7 +31,7 @@ class ESixPool(Ladle):
     response = SauceResponse(
       title = f"Pool{': ' + pool.name.replace('_', ' ') if pool.name else None}",
       description = pool.description,
-      url = match[0],
+      url = match.group(),
       images = [ post.file.url for post in posts ],
       color = Color(0x246cab),
       count = pool.post_count,

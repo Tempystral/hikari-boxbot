@@ -60,7 +60,7 @@ class InkBunny(Ladle):
         response = SauceResponse(
           title = submission.get("title"),
           description=strip_tags(submission.get("description_bbcode_parsed")),
-          url=match[0],
+          url=match.group(),
           images = [f.get("file_url_full") for f in submission.get("files")[:4]],
           author_name = submission.get("username"),
           author_icon = submission.get("user_icon_url_small") or r'https://qc.ib.metapix.net/images78/usericons/large/noicon.png',
