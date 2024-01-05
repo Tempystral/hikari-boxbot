@@ -157,8 +157,8 @@ class Mosaic:
 class FXMedia:
   '''Provides data for a media object'''
   mosaic: Mosaic | None
+  external: FXMediaEntity | None = None
   all: list[FXMediaEntity] | None = field(default_factory=list)
-  external: list[FXMediaEntity] | None = field(default_factory=list)
   photos: list[FXPhoto] | None = field(default_factory=list)
   videos: list[FXVideo] | None = field(default_factory=list)
 
