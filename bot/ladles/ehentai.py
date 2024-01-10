@@ -33,7 +33,7 @@ class EHentai(Ladle):
     
     return self._create_response(gallery)
   
-  def _create_response(self, gallery:EHGallery) -> SauceResponse:
+  def _create_response(self, gallery:EHGallery):
     prefix, description = (("ex", EHENTAI_DESC)
                            if self.__is_restricted(gallery.tags)
                            else ("e-", ""))

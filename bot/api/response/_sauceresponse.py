@@ -49,12 +49,14 @@ class SauceResponse():
       self.count = len(self.images) if self.images else 0
     self.timestamp = self.__init_timestamp(self.timestamp)
 
-  def to_embeds(self):
+  def to_embeds(self) -> list[Embed]:
     '''
-    Creates a discord embed from the response object containing all the response details. Also contains the first image in `images`, if any.
+    Creates an array of discord embeds from the response object. The first embed contains all response details.
+    If there are multiple images in the response, up to 3 additional embeds are generated, which Discord will
+    merge together in the client.
     '''
     if self.text:
-      return None
+      return []
     embed = (
       Embed(title = self.title, description=self.description, url=self.url, color=self.color, timestamp=self.timestamp)
       .set_author(name=self.author_name, url=self.author_url, icon=self.author_icon)

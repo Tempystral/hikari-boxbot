@@ -1,3 +1,4 @@
+from asyncio import TaskGroup
 import logging
 import random
 from re import Match, Pattern
@@ -20,8 +21,15 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   
   # Get a list of links from the message
   msg = sauce_utils.remove_spoilered_text(event.content)
+  reply:hikari.Message
   logger.debug(f"Message: {msg}")
   links = _find_links(msg)
+
+  if links:
+    reply = await event.message.respond("Saucing media, one moment...",
+                                        reply=event.message.id,
+                                        flags = hikari.MessageFlag.LOADING | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
+
   # If the regex finds a suitable match, send the link to one of the ladles to retrieve metadata
   for ladle, matched_link in links:
     response = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
@@ -30,17 +38,20 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     logger.debug(f"Extracted Data: {response.__repr__()}")
     
     # Once metadata is retrieved, send it off to the embed generator
-    embeds = response.to_embeds() if response else None
-    await _add_random_footer_icon(event.guild_id, embeds[0])
+    embeds = response.to_embeds() if response else []
+    if embeds:
+      await _add_random_footer_icon(event.guild_id, embeds[0])
 
     # Post the embed + suppress embeds on original message
     if embeds or response.text:
-      await event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS)
-      await event.message.respond(attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
-                                  embeds=embeds,
-                                  content=response.text,
-                                  reply=event.message.id,
-                                  mentions_reply=False)
+      async with TaskGroup() as tg:
+        suppressTask = tg.create_task(event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS))
+        deleteLoadingTask = tg.create_task(reply.delete())
+        finalReplyTask = tg.create_task(event.message.respond(
+                                       attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
+                                       embeds=embeds,
+                                       content=response.text,
+                                       mentions_reply=False))
     # Finally, if necessary...
     await ladle.cleanup(matched_link)
     logger.info(f"Sauced post {event.message_id} by user {event.member.username}#{event.member.discriminator}: {matched_link.string}")
