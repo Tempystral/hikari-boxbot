@@ -38,7 +38,7 @@ class VXTwitterResponse(Tweet):
   @property
   def media(self):
     photos = [m.url for m in self.media_extended if m.type == "image"]
-    videos = [m.url for m in self.media_extended if m.type == "video"]
+    videos = [m.url for m in self.media_extended if m.type == "video" and m.duration_millis < 600000]
     return photos, videos
 
   @property
@@ -62,6 +62,7 @@ class VXTwitterResponse(Tweet):
 class VXMedia:
   altText: Optional[str]
   size: "VXDimensions"
+  duration_millis: float
   thumbnail_url: str
   type: Literal["video", "image"]
   url: str

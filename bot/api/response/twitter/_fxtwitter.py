@@ -35,7 +35,7 @@ class FXTwitterResponse(Tweet):
       if self.tweet.media.photos:
         photos = [p.url for p in (self.tweet.media.photos[:4] or [])]
       if self.tweet.media.videos:
-        videos = [v.url for v in (self.tweet.media.videos or [])]
+        videos = [v.url for v in (self.tweet.media.videos or []) if v.duration < 600]
     return photos, videos
   
   @property
