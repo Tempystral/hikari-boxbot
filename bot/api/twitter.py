@@ -23,7 +23,7 @@ class TwitterAPI:
     self._session = session
 
   async def __get(self, client:str, user:str, id:str):
-    response = await self._session.get(f"https://api.{client}twitter.com/{user}/status/{id}/")
+    response = await self._session.get(f"https://api.{client}twitter.com/{user}/status/{id}")
     # logger.warning(f"{response.status} - {await response.text()}")
     if response.status != 200:
       raise StatusException
