@@ -9,6 +9,7 @@ from decouple import config
 
 from bot.ladles import Ladle
 from bot.utils import sauce_utils
+from bot.utils.config.errors import GuildNotFoundError
 from bot.utils.config.serverConfig import ServerConfig
 
 logger = logging.getLogger("BoxBot.modules.sauce")
@@ -92,7 +93,7 @@ def _do_not_sauce(event: hikari.Event):
     guild = settings.get_guild(event.guild_id)
     if event.channel_id in guild.channel_exclusions:
         return True
-  except AttributeError as e:
+  except GuildNotFoundError as e:
     return True
   
   return False
