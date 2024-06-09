@@ -4,6 +4,7 @@ import hikari
 import lightbulb as lb
 from hikari.permissions import Permissions
 import miru
+from bot.utils.checks import elevated_user
 from bot.utils.config import ServerConfig, BoxbotException
 
 log = getLogger("rocket.extensions.admin")
@@ -12,7 +13,7 @@ plugin = lb.Plugin("Admin")
 ladleOptions = [ miru.SelectOption(label= x) for x in config("EXTRACTORS", cast=str).split(",") ]
 
 @plugin.command
-@lb.add_checks(lb.has_guild_permissions(Permissions.MANAGE_ROLES))
+@lb.add_checks(elevated_user | lb.checks.owner_only)
 @lb.command("boxbot", "Manage server-specific settings for the bot")
 @lb.implements(lb.SlashCommandGroup, lb.PrefixCommandGroup)
 async def admin_group(ctx: lb.Context) -> None:
