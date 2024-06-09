@@ -8,7 +8,7 @@ import lightbulb as lb
 from decouple import config
 
 from bot.ladles import Ladle
-from bot.utils import sauce_utils
+from bot.utils import bot_utils, sauce_utils
 from bot.utils.config.errors import GuildNotFoundError
 from bot.utils.config.serverConfig import ServerConfig
 
@@ -78,7 +78,11 @@ def _find_links(message:str, guild_id: int) -> list[tuple[Ladle, Match]]:
 
 async def _add_random_footer_icon(guild: hikari.SnowflakeishOr[hikari.PartialGuild], embed: hikari.Embed):
   if embed.footer:
-    emojis = __datastore().emojis[int(guild)]
+    if int(guild) in __datastore().emojis:
+      emojis = __datastore().emojis[int(guild)]
+    else:
+      newemojis = await bot_utils.get_emoji(sauce_plugin.bot, [int(guild)])
+      __datastore().emojis = __datastore().emojis | newemojis
     emoji = random.choice([e for e in emojis if not e.is_animated])
     embed.set_footer(embed.footer.text, icon=emoji)
   
