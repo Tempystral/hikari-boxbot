@@ -3,6 +3,7 @@ import logging
 import lightbulb as lb
 from hikari import InteractionType, Message, MessageType
 
+from bot.utils.config.errors import BoxbotException
 from bot.utils.config.serverConfig import ServerConfig
 
 logger = logging.getLogger("BoxBot.sauce.checks")
@@ -27,7 +28,7 @@ async def _elevated_user(context: lb.Context) -> bool:
       for role in settings.get_guild(guild.id).elevated_roles:
         if role in user.role_ids:
           return True
-    except AttributeError as e:
+    except BoxbotException as e:
       pass
   raise NotElevatedError("User must have an elevated role to perform this command!")
 

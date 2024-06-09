@@ -8,21 +8,21 @@ import miru
 from bot.utils.checks import elevated_user
 from bot.utils.config import ServerConfig, BoxbotException
 
-log = getLogger("rocket.extensions.admin")
+log = getLogger("Boxbot.modules.admin")
 
 plugin = lb.Plugin("Admin")
 ladleOptions = [ miru.SelectOption(label= x) for x in config("EXTRACTORS", cast=str).split(",") ]
 
 @plugin.command
-@lb.add_checks(elevated_user)
+@lb.add_checks(elevated_user | lb.owner_only | lb.has_guild_permissions(Permissions.ADMINISTRATOR))
 @lb.command("boxbot", "Manage server-specific settings for the bot")
-@lb.implements(lb.SlashCommandGroup, lb.PrefixCommandGroup)
+@lb.implements(lb.SlashCommandGroup)
 async def admin_group(ctx: lb.Context) -> None:
   pass
 
 @admin_group.child
 @lb.command("admin", "Set variables", inherit_checks=True)
-@lb.implements(lb.SlashSubGroup, lb.PrefixSubGroup)
+@lb.implements(lb.SlashSubGroup)
 async def set_command(ctx: lb.Context):
   pass
 
@@ -54,7 +54,6 @@ async def choose_ladles(ctx: lb.Context):
   save_settings()
 
 @admin_group.child
-@lb.add_checks(lb.checks.owner_only)
 @lb.command("setup", "Set up the guild to use Boxbot", inherit_checks=True)
 @lb.implements(lb.SlashSubCommand, lb.PrefixSubCommand)
 async def setup(ctx: lb.Context):
@@ -74,13 +73,17 @@ async def __create_view(ctx: lb.Context, view: miru.View, msg: str):
 @plugin.set_error_handler
 async def on_error(event: lb.events.CommandErrorEvent) -> bool | None:
   log.warning(f"Caught exception: {type(event.exception)}")
+
+  if isinstance(event.exception, lb.CheckFailure):
+    await event.context.respond(content="\n".join(event.exception.args[0].split(", ")),
+                                flags=hikari.MessageFlag.EPHEMERAL)
+    return True # To tell the bot not to propogate this error event up the chain
+
   # if isinstance(event.exception, lb.errors.CommandInvocationError):
   if isinstance(event.exception, BoxbotException):
     await event.context.respond(event.exception.message, flags=hikari.MessageFlag.EPHEMERAL)
     return True # To tell the bot not to propogate this error event up the chain
-  if isinstance(event.exception, lb.CheckFailure):
-    await event.context.respond(event.exception.args[0], flags=hikari.MessageFlag.EPHEMERAL)
-    return True
+
 
 class ChannelSelectView(miru.View):
   @miru.channel_select(
