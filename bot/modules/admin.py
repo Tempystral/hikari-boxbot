@@ -78,7 +78,9 @@ async def on_error(event: lb.events.CommandErrorEvent) -> bool | None:
   if isinstance(event.exception, BoxbotException):
     await event.context.respond(event.exception.message, flags=hikari.MessageFlag.EPHEMERAL)
     return True # To tell the bot not to propogate this error event up the chain
-
+  if isinstance(event.exception, lb.CheckFailure):
+    await event.context.respond(event.exception.causes, flags=hikari.MessageFlag.EPHEMERAL)
+    return True
 
 class ChannelSelectView(miru.View):
   @miru.channel_select(

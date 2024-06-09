@@ -23,9 +23,12 @@ async def _elevated_user(context: lb.Context) -> bool:
   if (guild := context.get_guild()):
     user = guild.get_member((await context.author.fetch_self()).id)
     settings: ServerConfig = context.bot.d.settings
-    for role in settings.get_guild(guild.id).elevated_roles:
-      if role in user.role_ids:
-        return True
+    try:
+      for role in settings.get_guild(guild.id).elevated_roles:
+        if role in user.role_ids:
+          return True
+    except AttributeError as e:
+      pass
   raise NotElevatedError("User must have an elevated role to perform this command!")
 
 async def _reply_only(context: lb.Context) -> bool:
