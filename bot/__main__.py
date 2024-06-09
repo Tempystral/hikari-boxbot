@@ -13,6 +13,5 @@ if __name__ == "__main__":
 			asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 	create(
 		config("BOT_TOKEN"),
-		config("GUILD", cast=int),
 		config("LOG_LEVEL", cast=str)
 	).run()

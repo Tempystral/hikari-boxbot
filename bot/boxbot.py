@@ -11,13 +11,11 @@ from bot.utils.config.serverConfig import get_settings
 logger = logging.getLogger("BoxBot")
 
 class BoxBot(BotApp):
-  def __init__(self, token:str, *guilds:int, log_level:str = "DEBUG"):
+  def __init__(self, token:str, log_level:str = "DEBUG"):
     self.token = token
-    self.guilds = guilds
     super().__init__(token=self.token,
                      prefix="!",
                      intents=hikari.Intents.ALL_GUILDS | hikari.Intents.MESSAGE_CONTENT,
-                     default_enabled_guilds=guilds,
                      banner="bot",
                      logs=log_level
                     )
@@ -28,7 +26,8 @@ class BoxBot(BotApp):
     self.d.settings = get_settings()
     self.d.aio_session = ClientSession()
     self.d.test_channel = config("TEST_CHANNEL", cast=int)
-    self.d.emojis = await bot_utils.get_emoji(self, self.guilds)
+    guilds = [g for g in self.d.settings.guilds]
+    self.d.emojis = await bot_utils.get_emoji(self, guilds)
   
   async def on_started(self, event:hikari.StartedEvent) -> None:
     user = self.get_me()
@@ -41,8 +40,8 @@ class BoxBot(BotApp):
     logger.info("Shutting down...")
     await self.d.aio_session.close()
 
-def create(token:str, guild_id:int, log_level:str) -> BoxBot:
-  bot = BoxBot(token, guild_id, log_level=log_level) # init
+def create(token:str, log_level:str) -> BoxBot:
+  bot = BoxBot(token, log_level=log_level) # init
   # Listen for system events
   bot.subscribe(hikari.StartingEvent, bot.on_starting)
   bot.subscribe(hikari.StartedEvent, bot.on_started)
