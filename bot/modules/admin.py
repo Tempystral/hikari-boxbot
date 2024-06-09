@@ -14,7 +14,7 @@ plugin = lb.Plugin("Admin")
 ladleOptions = [ miru.SelectOption(label= x) for x in config("EXTRACTORS", cast=str).split(",") ]
 
 @plugin.command
-@lb.add_checks(elevated_user | lb.checks.owner_only)
+@lb.add_checks(elevated_user)
 @lb.command("boxbot", "Manage server-specific settings for the bot")
 @lb.implements(lb.SlashCommandGroup, lb.PrefixCommandGroup)
 async def admin_group(ctx: lb.Context) -> None:

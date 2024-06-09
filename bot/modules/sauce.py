@@ -88,10 +88,13 @@ def _do_not_sauce(event: hikari.Event):
     if not event.channel_id == __datastore().test_channel:
       return True
   settings: ServerConfig = sauce_plugin.bot.d.settings
-  if not settings.get_guild(event.guild_id):
+  try:
+    guild = settings.get_guild(event.guild_id)
+    if event.channel_id in guild.channel_exclusions:
+        return True
+  except AttributeError as e:
     return True
-  elif event.channel_id in settings.get_guild(event.guild_id).channel_exclusions:
-      return True
+  
   return False
 
 def __datastore():
