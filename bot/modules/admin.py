@@ -1,6 +1,7 @@
 from logging import getLogger
 from decouple import config
 import hikari
+import hikari.permissions
 import lightbulb as lb
 from hikari.permissions import Permissions
 import miru
