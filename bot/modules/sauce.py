@@ -56,7 +56,8 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
                                        mentions_reply=False))
     # Finally, if necessary...
     await ladle.cleanup(matched_link)
-    logger.info(f"Sauced post {event.message_id} by user {event.member.username}#{event.member.discriminator}: {matched_link.string}")
+    guild_name = guild.name if (guild := event.get_guild()) else event.guild_id
+    logger.info(f"{guild_name} | Msg {event.message_id} | {event.member.username}: {matched_link.string}")
 
 def _find_links(message:str, guild_id: int) -> list[tuple[Ladle, Match]]:
   links = []
