@@ -6,6 +6,7 @@ from decouple import config
 from lightbulb import BotApp
 
 from bot.utils import bot_utils, loghelper
+from bot.utils.config.serverConfig import get_settings
 
 logger = logging.getLogger("BoxBot")
 
@@ -24,6 +25,7 @@ class BoxBot(BotApp):
 
   async def on_starting(self, event:hikari.Event) -> None:
     logger.info("Starting...")
+    self.d.settings = get_settings()
     self.d.aio_session = ClientSession()
     self.d.test_channel = config("TEST_CHANNEL", cast=int)
     self.d.emojis = await bot_utils.get_emoji(self, self.guilds)

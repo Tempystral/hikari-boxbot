@@ -3,6 +3,8 @@ import logging
 import lightbulb as lb
 from hikari import InteractionType, Message, MessageType
 
+from bot.utils.config.serverConfig import ServerConfig
+
 logger = logging.getLogger("BoxBot.sauce.checks")
 
 async def _user_replied_to(context: lb.Context) -> bool:
@@ -16,6 +18,15 @@ async def _user_replied_to(context: lb.Context) -> bool:
   except AttributeError as e:
     pass # This should be ignored because it's optional AND getting checked again in reply_only
   return True
+
+async def _elevated_user(context: lb.Context) -> bool:
+  if (guild := context.get_guild()):
+    user = guild.get_member((await context.author.fetch_self()).id)
+    settings: ServerConfig = context.bot.d.settings
+    for role in settings.get_guild(guild.id).elevated_roles:
+      if role in user.role_ids:
+        return True
+  raise NotElevatedError("User must have an elevated role to perform this command!")
 
 async def _reply_only(context: lb.Context) -> bool:
   if context.interaction.type == InteractionType.APPLICATION_COMMAND:
@@ -52,6 +63,8 @@ reply_only = lb.Check(p_callback=_reply_only, m_callback=_reply_only)
 """Only run command on messages marked with message flag 19 [`REPLY`]."""
 on_bot_message = lb.Check(p_callback=_on_bot_message, m_callback=_on_bot_message)
 """Only run command on messages sent by a bot."""
+elevated_user = lb.Check(p_callback=_elevated_user, m_callback=_elevated_user)
+"""Only run command if the user has an elevated role."""
 
 class CheckFailureWithData(lb.errors.CheckFailure):
   """A wrapper class for errors containing cleanup data."""
@@ -67,3 +80,6 @@ class NotCallingAuthorError(lb.errors.CheckFailure):
 
 class BotMessageOnlyError(lb.errors.CheckFailure):
   """An error raised when a command intended for bot messages was run on a non-bot message."""
+
+class NotElevatedError(lb.errors.CheckFailure):
+  """An error raised when a command is run by non-elevated users message."""

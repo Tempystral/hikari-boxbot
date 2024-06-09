@@ -9,6 +9,7 @@ from decouple import config
 
 from bot.ladles import Ladle
 from bot.utils import sauce_utils
+from bot.utils.config.serverConfig import ServerConfig
 
 logger = logging.getLogger("BoxBot.modules.sauce")
 
@@ -23,7 +24,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   msg = sauce_utils.remove_spoilered_text(event.content)
   reply:hikari.Message
   logger.debug(f"Message: {msg}")
-  links = _find_links(msg)
+  links = _find_links(msg, event.guild_id)
 
   if links:
     reply = await event.message.respond("Saucing media, one moment...",
@@ -48,6 +49,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
         suppressTask = tg.create_task(event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS))
         deleteLoadingTask = tg.create_task(reply.delete())
         finalReplyTask = tg.create_task(event.message.respond(
+                                       reply=event.message.id,
                                        attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
                                        embeds=embeds,
                                        content=response.text,
@@ -56,16 +58,17 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     await ladle.cleanup(matched_link)
     logger.info(f"Sauced post {event.message_id} by user {event.member.username}#{event.member.discriminator}: {matched_link.string}")
 
-def _find_links(message:str) -> list[tuple[Ladle, Match]]:
+def _find_links(message:str, guild_id: int) -> list[tuple[Ladle, Match]]:
   links = []
   ladle: Ladle
   pattern: Pattern
   for (ladle, pattern) in _get_extractors(sauce_plugin.bot):
-    # Find all the matches for a given extractor's pattern in the message
-    matches = pattern.finditer(message)
-    #logger.debug(f"Matches for pattern: {pattern}: {matches}")
-    if matches:
-      links.extend([(ladle, match) for match in matches])
+    if _extractor_enabled(ladle, guild_id):
+      # Find all the matches for a given extractor's pattern in the message
+      matches = pattern.finditer(message)
+      #logger.debug(f"Matches for pattern: {pattern}: {matches}")
+      if matches:
+        links.extend([(ladle, match) for match in matches])
   
   if links:
     logger.debug(f"Found the following links: {[m for _, m in links]}")
@@ -83,10 +86,17 @@ def _do_not_sauce(event: hikari.Event):
   if __datastore().testmode:
     if not event.channel_id == __datastore().test_channel:
       return True
+  settings: ServerConfig = sauce_plugin.bot.d.settings
+  if event.channel_id in settings.get_guild(event.guild_id).channel_exclusions:
+    return True
   return False
 
 def __datastore():
   return sauce_plugin.bot.d
+
+def _extractor_enabled(ladle: Ladle, guild_id: int):
+  settings: ServerConfig = sauce_plugin.bot.d.settings
+  return ladle.__class__.__name__ in settings.get_guild(guild_id).extractors
 
 def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
     return bot.d.extractors

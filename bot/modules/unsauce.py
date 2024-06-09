@@ -4,7 +4,7 @@ from re import T
 import hikari
 import lightbulb as lb
 from bot.api.exception import LadleException
-from bot.utils.checks import on_bot_message, reply_only, user_replied_to
+from bot.utils.checks import on_bot_message, reply_only, user_replied_to, elevated_user
 from decouple import config
 
 from bot.utils.sauce_utils import contains_embed
@@ -15,14 +15,14 @@ unsauce_plugin = lb.Plugin("Unsauce")
 
 @unsauce_plugin.command
 @lb.add_checks(on_bot_message, reply_only)
-@lb.add_checks(user_replied_to | lb.has_roles(role1=config("ELEVATED_ROLES", cast=int)))
+@lb.add_checks(user_replied_to | elevated_user)
 @lb.command("Un-Sauce", "Purge the last message BoxBot sauced for you.")
 @lb.implements(lb.MessageCommand)
 async def un_sauce(ctx: lb.MessageContext) -> None:
   msg:hikari.Message = ctx.bot.d.pop(ctx.interaction.target_id)
 
   search_msgs = None
-  del_msgs:list[hikari.Message]    = []
+  del_msgs:list[hikari.Message] = []
 
   # Determine which post was clicked by reading the embed data
   if contains_embed(msg):
@@ -47,7 +47,7 @@ async def un_sauce(ctx: lb.MessageContext) -> None:
   # Finally, delete both messages
   del_msgs.append(msg)
   for message in del_msgs:
-    logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id or 'deleted message'}")
+    logger.info(f"Deleting message {message.id}; Parent: {message.referenced_message.id if message.referenced_message else 'deleted message'}")
     await message.delete()
   if message.referenced_message:
     await msg.referenced_message.delete()
