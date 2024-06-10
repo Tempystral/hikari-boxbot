@@ -36,6 +36,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   for ladle, matched_link in links:
     response = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
     if not response:
+      await reply.delete()
       return
     logger.debug(f"Extracted Data: {response.__repr__()}")
     
