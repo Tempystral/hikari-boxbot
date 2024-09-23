@@ -87,15 +87,14 @@ async def _add_random_footer_icon(guild: hikari.SnowflakeishOr[hikari.PartialGui
     emoji = random.choice([e for e in emojis if not e.is_animated])
     embed.set_footer(embed.footer.text, icon=emoji)
   
-def _do_not_sauce(event: hikari.Event):
+def _do_not_sauce(event: hikari.GuildMessageCreateEvent):
   if (not event.content) or event.author.is_bot:
     return True
   if __datastore().testmode:
     if not event.channel_id == __datastore().test_channel:
       return True
-  settings: ServerConfig = sauce_plugin.bot.d.settings
   try:
-    guild = settings.get_guild(event.guild_id)
+    guild = get_settings().get_guild(event.guild_id)
     if event.channel_id in guild.channel_exclusions:
         return True
   except GuildNotFoundError as e:
@@ -106,9 +105,11 @@ def _do_not_sauce(event: hikari.Event):
 def __datastore():
   return sauce_plugin.bot.d
 
+def get_settings() -> ServerConfig:
+  return __datastore().settings
+
 def _extractor_enabled(ladle: Ladle, guild_id: int):
-  settings: ServerConfig = sauce_plugin.bot.d.settings
-  return ladle.__class__.__name__ in settings.get_guild(guild_id).extractors
+  return ladle.__class__.__name__ in get_settings().get_guild(guild_id).extractors
 
 def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
     return bot.d.extractors
