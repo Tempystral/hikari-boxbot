@@ -55,7 +55,9 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
                                        attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
                                        embeds=embeds,
                                        content=response.text,
-                                       mentions_reply=False))
+                                       mentions_reply=False,
+                                       flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
+                                       )
     # Finally, if necessary...
     await ladle.cleanup(matched_link)
     guild_name = guild.name if (guild := event.get_guild()) else event.guild_id
