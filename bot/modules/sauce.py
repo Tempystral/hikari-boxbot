@@ -23,22 +23,24 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   
   # Get a list of links from the message
   msg = sauce_utils.remove_spoilered_text(event.content)
-  reply:hikari.Message
+  waiting_reply:hikari.Message | None = None
   logger.debug(f"Message: {msg}")
   links = _find_links(msg, event.guild_id)
 
-  if links:
-    reply = await event.message.respond("Saucing media, one moment...",
-                                        reply=event.message.id,
-                                        flags = hikari.MessageFlag.LOADING | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS,
-                                        
-                                        )
-
   # If the regex finds a suitable match, send the link to one of the ladles to retrieve metadata
   for ladle, matched_link in links:
+
+    # Ugly solution tbh but this lets me select which ladles get a Please Wait message
+    # Proper solution probably involves a separate response from the ladle or more data fields in SauceResponse
+    if ladle.__class__.__name__ == "Pixiv" or "ESixPool":
+      waiting_reply = await event.message.respond("Saucing media, one moment...",
+                                          reply=event.message.id,
+                                          flags = hikari.MessageFlag.LOADING | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS,
+                                        )
+
     response = await ladle.extract(match=matched_link, session=sauce_plugin.bot.d.aio_session)
     if not response:
-      await reply.delete()
+      # await reply.delete()
       return
     logger.debug(f"Extracted Data: {response.__repr__()}")
     
@@ -49,15 +51,22 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 
     # Post the embed + suppress embeds on original message
     if embeds or response.text:
+
+      msg_body = {
+        "attachment": response.video or hikari.UNDEFINED, # Undefined is NOT None!
+        "embeds": embeds,
+        "content": response.text,
+        "mentions_reply": False,
+        "flags": hikari.MessageFlag.SUPPRESS_NOTIFICATIONS
+      }
+      
       async with TaskGroup() as tg:
         suppressTask = tg.create_task(event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS))
-        finalReplyTask = tg.create_task(reply.edit(
-                                       attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
-                                       embeds=embeds,
-                                       content=response.text,
-                                       mentions_reply=False,
-                                       flags=hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
-                                       )
+        if waiting_reply:
+          finalEditTask = tg.create_task(waiting_reply.edit(**msg_body))
+        else:
+          finalReplyTask = tg.create_task(event.message.respond(reply=event.message.id, **msg_body))
+
     # Finally, if necessary...
     await ladle.cleanup(matched_link)
     guild_name = guild.name if (guild := event.get_guild()) else event.guild_id
