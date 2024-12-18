@@ -30,7 +30,9 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
   if links:
     reply = await event.message.respond("Saucing media, one moment...",
                                         reply=event.message.id,
-                                        flags = hikari.MessageFlag.LOADING | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS)
+                                        flags = hikari.MessageFlag.LOADING | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS,
+                                        
+                                        )
 
   # If the regex finds a suitable match, send the link to one of the ladles to retrieve metadata
   for ladle, matched_link in links:
@@ -49,9 +51,7 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
     if embeds or response.text:
       async with TaskGroup() as tg:
         suppressTask = tg.create_task(event.message.edit(flags=hikari.MessageFlag.SUPPRESS_EMBEDS))
-        deleteLoadingTask = tg.create_task(reply.delete())
-        finalReplyTask = tg.create_task(event.message.respond(
-                                       reply=event.message.id,
+        finalReplyTask = tg.create_task(reply.edit(
                                        attachment=response.video or hikari.UNDEFINED, # Undefined is NOT None!
                                        embeds=embeds,
                                        content=response.text,
@@ -117,8 +117,8 @@ def _get_extractors(bot: lb.BotApp) -> tuple[Ladle, Pattern]:
     return bot.d.extractors
 
 def _set_extractors(bot: lb.BotApp) -> None:
-  l_extractors = config("EXTRACTORS", cast=str).split(",")
-  l_ladles = sauce_utils.get_ladles(l_extractors)
+  l_extractors: list[str] = config("EXTRACTORS", cast=str).split(",")
+  l_ladles = sauce_utils.get_ladles([ex for ex in l_extractors if ex])
   bot.d.extractors = sauce_utils.compile_patterns(l_ladles)
 
 def load(bot: lb.BotApp) -> None:
