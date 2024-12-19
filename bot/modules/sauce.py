@@ -32,7 +32,8 @@ async def sauce(event: hikari.GuildMessageCreateEvent):
 
     # Ugly solution tbh but this lets me select which ladles get a Please Wait message
     # Proper solution probably involves a separate response from the ladle or more data fields in SauceResponse
-    if ladle.__class__.__name__ == "Pixiv" or "ESixPool":
+    
+    if ladle.__class__.__name__ in ["Pixiv", "ESixPool"]:
       waiting_reply = await event.message.respond("Saucing media, one moment...",
                                           reply=event.message.id,
                                           flags = hikari.MessageFlag.LOADING | hikari.MessageFlag.SUPPRESS_NOTIFICATIONS,

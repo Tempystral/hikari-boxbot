@@ -27,8 +27,8 @@ class Bluesky(Ladle):
 
     author = _api.get_profile(username)
     post = _api.get_post(post_id, username).value
-    #logger.debug(post.model_dump_json())
-    #logger.debug(author.model_dump_json())
+    # logger.debug(post.model_dump_json())
+    # logger.debug(author.model_dump_json())
 
     video = None
     images = []
@@ -39,8 +39,8 @@ class Bluesky(Ladle):
     if "images" in post.embed.model_fields_set:
       images = [self.build_img_url(author.did, img.image.ref.link, img.image.mime_type) for img in post.embed.images]
       count = len(post.embed.images)
-    # if "video" in post.embed.model_fields_set:
-    #   return None # For now it's too much of a pain to get these URLs and stitch together the playlist
+    if "video" in post.embed.model_fields_set:
+      return None # For now it's too much of a pain to get these URLs and stitch together the playlist
     #   #video = self.build_vid_url(author.did, post.embed.video.ref.link, post.embed.video.mime_type)
     
     return SauceResponse(
