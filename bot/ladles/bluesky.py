@@ -41,14 +41,15 @@ class Bluesky(Ladle):
     else:
       media = post.embed
     
+    if "video" in media.model_fields_set:
+      return SauceResponse(text=f"https://fxbsky.app/profile/{username}/post/{post_id}")
+    
     if "images" in media.model_fields_set:
       images = [self.build_img_url(author.did, img.image.ref.link, img.image.mime_type) for img in media.images]
       count = len(media.images)
-    if "video" in media.model_fields_set:
-      return SauceResponse(text=f"https://fxbsky.app/profile/{username}/post/{post_id}")
-    #  return None # For now it's too much of a pain to get these URLs and stitch together the playlist
-    #   #video = self.build_vid_url(author.did, post.embed.video.ref.link, post.embed.video.mime_type)
-    
+    else: # No images, no Video or we'd have returned by now, must be a repost record
+      return None
+
     return SauceResponse(
        author_name=f"{author.display_name} ({author.handle})",
        author_icon=author.avatar,
