@@ -96,7 +96,7 @@ class ChannelSelectView(miru.View):
     settings: ServerConfig = plugin.bot.d.settings
     assert ctx.guild_id
     settings.set_excluded_channels(ctx.guild_id, select.values)
-    await ctx.respond(f"Confirmed: {", ".join([ch.mention for ch in select.values])} will be excluded from processing.")
+    await ctx.respond(f"Confirmed: {', '.join([ch.mention for ch in select.values])} will be excluded from processing.")
 
 class RoleSelectView(miru.View):
   @miru.role_select(placeholder="Select elevated roles", min_values=1, max_values=25)
