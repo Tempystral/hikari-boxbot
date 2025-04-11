@@ -128,7 +128,7 @@ class FXPhoto:
   url: str
   width: int
   height: int
-  altText: str
+  altText: str | None = None
 
 @dataclass(slots=True)
 class FXVideo:
@@ -139,6 +139,7 @@ class FXVideo:
   thumbnail_url: str
   duration: float
   format: str
+  altText: str | None = None
 
 @dataclass(slots=True)
 class FXMosaicFormats:

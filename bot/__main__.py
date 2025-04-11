@@ -11,7 +11,6 @@ if __name__ == "__main__":
 	if os.name != "nt":
 			import uvloop
 			asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-	create(
-		config("BOT_TOKEN"),
-		config("LOG_LEVEL", cast=str)
-	).run()
+	token = config("BOT_TOKEN", cast=str)
+	log_level = config("LOG_LEVEL", cast=str)
+	create(token, log_level).run()
