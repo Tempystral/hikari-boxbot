@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timezone
 from re import Match
 
 from aiohttp import ClientSession
@@ -36,8 +36,8 @@ class Furaffinity(Ladle):
 
       img = 'https:' + soup.select('#submissionImg')[0]['data-fullview-src']
 
-      upload_date = soup.select(".popup_date")[0]['title']
-      date = datetime.strptime(upload_date, r'%b %d, %Y %I:%M %p').astimezone(UTC)
+      upload_date = soup.select(".popup_date")[0]['data-time']
+      date = datetime.fromtimestamp(int(upload_date), timezone.utc)
 
       return SauceResponse(
         title=title,

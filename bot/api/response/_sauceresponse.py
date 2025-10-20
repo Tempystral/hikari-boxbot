@@ -67,7 +67,9 @@ class SauceResponse():
       embed.add_field(name="Image Count", value=self.count, inline=True)
       
     # Test at generating extra embeds from multiple images?
-    extra_embeds = [ Embed(url=self.url).set_image(image) for image in self.images[1:] ]
+    extra_embeds = []
+    if (self.images):
+      extra_embeds = [ Embed(url=self.url).set_image(image) for image in self.images[1:] ]
     return [embed, *extra_embeds]
   
   def __init_timestamp(self, ts: int | float | str | datetime):
