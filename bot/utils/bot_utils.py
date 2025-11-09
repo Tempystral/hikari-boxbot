@@ -7,8 +7,12 @@ import lightbulb
 
 
 async def get_emoji(bot: lightbulb.BotApp, guilds: Sequence[hikari.Snowflakeish]):
-  coros = [ get_emoji(bot, guild) for guild in guilds ]
-  emojilists:Sequence[hikari.Emoji] = await asyncio.gather(*[c for c in coros if c != None])
+  coros = []
+  for guild in guilds:
+    c = get_emoji(bot, guild)
+    if c != None:
+      coros.append(c)
+  emojilists:Sequence[hikari.Emoji] = await asyncio.gather(*coros)
   return dict(zip(guilds, emojilists))
 
 def get_emoji(bot: lightbulb.BotApp, guild: hikari.Snowflakeish):
