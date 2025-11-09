@@ -14,12 +14,14 @@ class Furaffinity(Ladle):
   def __init__(self):
     self.pattern = r'https?://www.furaffinity.net/(?:view|full)/(?P<id>\d+)'
     self._cookie = config("FA_COOKIE")
+    self._headers = {'Cookie': self._cookie}
 
   async def extract(self, match:Match, session: ClientSession) -> SauceResponse:
     submission_id = match.group("id")
 
     url = f'http://www.furaffinity.net/view/{submission_id}'
-    async with session.get(url, headers={'Cookie': self._cookie}) as response:
+    session.headers.merge(self._headers)
+    async with session.get(url, headers=self._headers) as response:
       text = await response.read()
       soup = BeautifulSoup(text, "html.parser")
 
@@ -28,9 +30,9 @@ class Furaffinity(Ladle):
         return None # No need to block the thread over this
 
       title, _, author = soup.find('meta', property='og:title')['content'].rpartition(" by ")
-      icon_url = 'https:' + soup.select('.classic-submission-title img.avatar')[0]['src']
+      icon_url = 'https:' + soup.select('.submission-user-icon')[0]['src']
 
-      description = soup.select('.maintable .maintable tr:nth-of-type(2) td')[0].get_text()
+      description = soup.select('.submission-description')[0].get_text()
       description = '\n'.join([l for l in description.split('\n') if l])
       description = (description[:197] + '...') if len(description) > 200 else description
 
